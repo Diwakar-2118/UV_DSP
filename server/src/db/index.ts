@@ -100,10 +100,17 @@ export async function createDb(opts: { url?: string; pgliteDir?: string | null }
 }
 
 function migrationsDir() {
-  const here = path.join(path.dirname(fileURLToPath(import.meta.url)), 'migrations');
-  if (fs.existsSync(here)) return here;
-  // compiled build (dist/db) -> fall back to the source migrations
-  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../src/db/migrations');
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const candidates = [
+    path.join(here, 'migrations'), // next to this module (src/db or dist/db)
+    path.resolve(here, '../../src/db/migrations'), // compiled build without copied SQL
+    path.resolve(process.cwd(), 'server/dist/db/migrations'), // serverless bundle (cwd = project root)
+    path.resolve(process.cwd(), 'server/src/db/migrations'),
+    path.resolve(process.cwd(), 'src/db/migrations'),
+  ];
+  const found = candidates.find((d) => fs.existsSync(d));
+  if (!found) throw new Error(`Database migrations not found (looked in: ${candidates.join(', ')})`);
+  return found;
 }
 
 export async function migrate(db: Db, log = false): Promise<string[]> {

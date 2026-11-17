@@ -95,7 +95,7 @@ For good India coverage, configure **Adzuna** and/or **JSearch**. The keyless so
 ## Documentation
 
 - [docs/API.md](docs/API.md): REST API reference
-- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): Supabase, Render and Vercel deployment, plus integration setup (OpenAI, SMTP, Telegram, job APIs)
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): **one-project Vercel deployment** (frontend + API + daily cron), the Render/Supabase alternative, and integration setup (OpenAI, SMTP, Telegram, job APIs)
 
 ## Security
 

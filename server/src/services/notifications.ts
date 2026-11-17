@@ -172,12 +172,13 @@ export async function sendDigestForUser(db: Db, userId: string) {
 }
 
 /** Called by the scheduler every few minutes: send each user's digest once per local day after their delivery time. */
-export async function runDueDigests(db: Db, now = new Date()) {
+export async function runDueDigests(db: Db, now = new Date(), opts: { ignoreDeliveryTime?: boolean } = {}) {
   const rows = await db.query('SELECT user_id, timezone, delivery_time, last_digest_on FROM notification_settings WHERE enabled');
   let sent = 0;
   for (const r of rows) {
     const { date, time } = localClock(r.timezone, now);
-    if (time < r.delivery_time || r.last_digest_on === date) continue;
+    // Once-a-day cron hosts (e.g. Vercel Hobby) can't honour per-user times, so they deliver every enabled user's digest.
+    if ((!opts.ignoreDeliveryTime && time < r.delivery_time) || r.last_digest_on === date) continue;
     await processAlertsForUser(db, r.user_id);
     await sendDigestForUser(db, r.user_id);
     sent++;

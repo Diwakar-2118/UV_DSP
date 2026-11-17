@@ -21,8 +21,12 @@ export const config = {
   cookieSameSite: (process.env.COOKIE_SAMESITE ?? 'lax') as 'lax' | 'strict' | 'none',
   cookieSecure: bool(process.env.COOKIE_SECURE, nodeEnv === 'production'),
   /** postgres://... (Supabase or any PostgreSQL). When empty, an embedded PGlite database is used. */
-  databaseUrl: process.env.DATABASE_URL ?? '',
-  databaseSsl: bool(process.env.DATABASE_SSL, false),
+  // POSTGRES_URL is what Vercel's Postgres/Neon integration sets.
+  databaseUrl: process.env.DATABASE_URL || process.env.POSTGRES_URL || '',
+  databaseSsl: bool(
+    process.env.DATABASE_SSL,
+    /sslmode=require|supabase\.(co|com)|neon\.tech|pooler\./i.test(process.env.DATABASE_URL || process.env.POSTGRES_URL || ''),
+  ),
   pgliteDir: process.env.PGLITE_DIR ?? '.data/pglite',
   authProvider: (process.env.AUTH_PROVIDER ?? 'local') as 'local' | 'supabase',
   supabaseUrl: process.env.SUPABASE_URL ?? '',

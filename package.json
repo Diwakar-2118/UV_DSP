@@ -2,7 +2,11 @@
   "name": "careerpilot-ai",
   "private": true,
   "version": "1.0.0",
-  "workspaces": ["server", "client", "e2e"],
+  "workspaces": [
+    "server",
+    "client",
+    "e2e"
+  ],
   "scripts": {
     "dev": "npm-run-all -p dev:server dev:client",
     "dev:server": "npm run dev -w server",
@@ -16,5 +20,6 @@
   },
   "devDependencies": {
     "npm-run-all2": "^6.2.2"
-  }
+  },
+  "type": "module"
 }

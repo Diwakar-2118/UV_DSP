@@ -1,5 +1,36 @@
 # Deployment & integration setup
 
+## Option A (recommended): everything on Vercel as one project
+
+The repo root contains `vercel.json` and `api/index.js`. Vercel serves the React app as static files and runs the Express API as a Vercel Function on `/api/*`. Both share one origin, so login cookies work without extra setup.
+
+1. **Vercel → Add New → Project → import `UV_DSP`.**
+   - **Root Directory:** `./` (the repo root, *not* `client`).
+   - **Application Preset / Framework:** **Other**. Don't choose "Services", and don't use "Import single project" for client or server. `vercel.json` already wires both together.
+   - Leave Build, Output and Install settings empty; they come from `vercel.json`.
+2. **Add a database.** Serverless functions can't keep a local database, so use one of these:
+   - Vercel → **Storage → Create Database → Neon (Postgres)**, connected to this project. It sets `POSTGRES_URL` / `DATABASE_URL` automatically.
+   - Supabase: set `DATABASE_URL` to its pooler connection string.
+
+   The tables are created automatically on the first request.
+3. **Environment Variables** (Project → Settings → Environment Variables):
+
+   | Name | Value |
+   |---|---|
+   | `JWT_SECRET` | A long random string. Required. |
+   | `CRON_SECRET` | A random string. Required for the daily job; Vercel sends it to the cron automatically. |
+   | `APP_URL` | `https://<your-project>.vercel.app` |
+   | Optional | `OPENAI_API_KEY`, `ADZUNA_APP_ID` / `ADZUNA_APP_KEY`, `JSEARCH_API_KEY`, `EMAIL_TRANSPORT=smtp` + `SMTP_*`, `TELEGRAM_BOT_TOKEN`, `ADMIN_EMAILS` |
+4. **Deploy**, or Redeploy after adding variables. Open `https://<your-project>.vercel.app/api/health`; it should return `{"status":"ok","database":"postgres",…}`.
+
+If a required variable is missing, the sign-up page names it ("Server not configured: set …") instead of showing a 404.
+
+**Daily alerts on Vercel:** `vercel.json` registers a cron at **03:30 UTC (09:00 IST)** that calls `/api/cron/daily`. That run collects jobs, matches alerts and sends digests. Hobby plans allow one cron run per day, so every user's digest goes out with that run. Per-user delivery times apply only on always-on hosts such as Render (Option B). Each function call can run for up to 60 s.
+
+---
+
+## Option B: Render (API) + Vercel (frontend) + Supabase
+
 Recommended layout: **Supabase** (PostgreSQL + optional Auth) → **Render** (Node API + scheduler) → **Vercel** (React frontend, proxying `/api` to Render so cookies stay first-party).
 
 ## 1. Database – Supabase
@@ -22,7 +53,7 @@ Set `AUTH_PROVIDER=supabase`, `SUPABASE_URL` and `SUPABASE_ANON_KEY`. Sign-up an
 ## 3. Frontend – Vercel
 
 1. Import the repo into Vercel with **Root Directory = `client`**. The framework is detected as Vite.
-2. Edit [`client/vercel.json`](../client/vercel.json) and replace `YOUR-RENDER-SERVICE.onrender.com` with your Render hostname. Browser calls to `/api/*` are then proxied to the API, so session cookies are first-party (`COOKIE_SAMESITE=lax` works).
+2. Add a `client/vercel.json` with the rewrite `{ "source": "/api/:path*", "destination": "https://<your-render-host>/api/:path*" }` plus the SPA fallback `{ "source": "/(.*)", "destination": "/index.html" }`. Browser calls to `/api/*` are then proxied to the API, so session cookies are first-party (`COOKIE_SAMESITE=lax` works).
 3. Leave `VITE_API_URL` empty.
 
 > Not using the rewrite? Set `VITE_API_URL=https://<api-host>` in Vercel, and on the API set `COOKIE_SAMESITE=none`, `COOKIE_SECURE=true` and `CLIENT_ORIGIN=https://<vercel-host>`. Some browsers restrict third-party cookies, so the rewrite is preferred.

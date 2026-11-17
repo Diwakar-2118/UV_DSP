@@ -18,7 +18,8 @@ import resumeRoutes from './routes/resumes.js';
 import { companyRouter, dashboardRouter, prepRouter, studyRouter } from './routes/misc.js';
 import { aiConfigured } from './services/ai.js';
 import { emailStatus, telegramConfigured } from './services/delivery.js';
-import { schedulerStatus } from './services/scheduler.js';
+import { runCollectionCycle, schedulerStatus } from './services/scheduler.js';
+import { runDueDigests } from './services/notifications.js';
 
 export async function createApp() {
   const app = express();
@@ -39,6 +40,17 @@ export async function createApp() {
     const db = await getDb();
     await db.query('SELECT 1');
     res.json({ status: 'ok', database: db.kind, time: new Date().toISOString() });
+  }));
+
+  // Daily job for serverless hosting (Vercel Cron sends "Authorization: Bearer $CRON_SECRET").
+  app.get('/api/cron/daily', asyncH(async (req, res) => {
+    const secret = process.env.CRON_SECRET;
+    if (!secret) throw new HttpError(503, 'CRON_SECRET is not configured');
+    if (req.headers.authorization !== `Bearer ${secret}`) throw new HttpError(401, 'Unauthorized');
+    const db = await getDb();
+    const collection = await runCollectionCycle(db);
+    const digests = await runDueDigests(db, new Date(), { ignoreDeliveryTime: true });
+    res.json({ collection, digests });
   }));
 
   app.use('/api/auth', authRoutes);
