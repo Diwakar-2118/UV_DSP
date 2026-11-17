@@ -80,10 +80,16 @@ function wrapPglite(lite: PGlite): Db {
 export async function createDb(opts: { url?: string; pgliteDir?: string | null } = {}): Promise<Db> {
   const url = opts.url ?? config.databaseUrl;
   if (url) {
+    // Let `ssl` below be the single source of truth (drop sslmode/channel_binding query params that pg would reinterpret).
+    const u = new URL(url);
+    u.searchParams.delete('sslmode');
+    u.searchParams.delete('channel_binding');
     const pool = new pg.Pool({
-      connectionString: url,
-      ssl: config.databaseSsl ? { rejectUnauthorized: false } : undefined,
-      max: 10,
+      connectionString: u.toString(),
+      // Verify the server certificate (Neon/Supabase have valid public certs). Opt out only for self-signed servers.
+      ssl: config.databaseSsl ? { rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false' } : undefined,
+      max: Number(process.env.DATABASE_POOL_MAX ?? 10),
+      idleTimeoutMillis: 10000,
     });
     return wrapPg(pool);
   }
