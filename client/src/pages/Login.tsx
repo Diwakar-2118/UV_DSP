@@ -1,8 +1,18 @@
 import { useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bell, BookOpen, Briefcase, Sparkles, Target } from 'lucide-react';
+import { Bell, BookOpen, Briefcase, Satellite, Sparkles, Target } from 'lucide-react';
 import { useAuth } from '../lib/context';
-import { Button, Field, Input } from '../components/ui';
+import LoginScene from '../components/LoginScene';
+
+const FEATURES = [
+  [Target, 'Transparent job match scores'],
+  [Bell, 'Daily job alerts'],
+  [BookOpen, 'Fintech interview prep'],
+  [Briefcase, 'Application tracking'],
+] as const;
+
+const inputCls =
+  'w-full rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 focus:outline-none';
 
 export default function LoginPage() {
   const { login, register } = useAuth();
@@ -38,94 +48,94 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-navy-950 via-navy-900 to-navy-700 p-12 text-white lg:flex">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-            <Sparkles className="h-5 w-5" />
+  const Pill = () => (
+    <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-200 shadow-[0_0_20px_rgba(16,185,129,0.25)]">
+      <span className="relative flex h-2 w-2">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+      </span>
+      Multi-Platform Job Discovery
+    </span>
+  );
+
+  const formCard = (
+    <div className="w-full max-w-sm">
+      <h2 className="text-2xl font-bold text-white">{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
+      <p className="mt-1 text-sm text-slate-400">{mode === 'login' ? 'Sign in to continue your job search.' : 'Your QA & fintech preferences are pre-filled – edit them anytime.'}</p>
+      <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
+        {mode === 'register' && (
+          <div>
+            <label htmlFor="cp-name" className="mb-1 block text-[11px] font-semibold tracking-wider text-slate-300 uppercase">Full name</label>
+            <input id="cp-name" name="fullName" autoComplete="name" required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className={inputCls} />
           </div>
-          <span className="text-lg font-bold">CareerPilot AI</span>
+        )}
+        <div>
+          <label htmlFor="cp-email" className="mb-1 block text-[11px] font-semibold tracking-wider text-slate-300 uppercase">Email</label>
+          <input id="cp-email" name="email" type="email" autoComplete="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} />
         </div>
         <div>
-          <h1 className="text-4xl leading-tight font-bold">
-            Find Opportunities.
-            <br />
-            Prepare Smarter.
-            <br />
-            <span className="text-navy-300">Get Hired.</span>
-          </h1>
-          <p className="mt-4 max-w-md text-navy-100">Your personal AI career assistant for QA, API, automation, performance and fintech testing roles in Bengaluru, Hyderabad and remote.</p>
-          <ul className="mt-8 grid max-w-md grid-cols-2 gap-4 text-sm">
-            {[
-              [Target, 'Transparent job match scores'],
-              [Bell, 'Daily job alerts'],
-              [BookOpen, 'Fintech interview prep'],
-              [Briefcase, 'Application tracking'],
-            ].map(([Icon, t]) => {
-              const I = Icon as typeof Target;
-              return (
-                <li key={t as string} className="flex items-center gap-2 text-navy-100">
-                  <I className="h-4 w-4 text-navy-300" /> {t as string}
-                </li>
-              );
-            })}
-          </ul>
+          <label htmlFor="cp-password" className="mb-1 block text-[11px] font-semibold tracking-wider text-slate-300 uppercase">Password</label>
+          <input id="cp-password" name="password" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className={inputCls} />
+          {mode === 'register' && <p className="mt-1 text-xs text-slate-500">At least 8 characters</p>}
         </div>
-        <p className="text-xs text-navy-300">Jobs come only from official APIs and authorised feeds.</p>
+        {error && <p role="alert" className="rounded-lg border border-red-500/40 bg-red-950/70 px-3 py-2 text-sm text-red-200">{error}</p>}
+        {info && <p className="rounded-lg border border-emerald-500/40 bg-emerald-950/70 px-3 py-2 text-sm text-emerald-200">{info}</p>}
+        <button
+          type="submit"
+          disabled={busy}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_24px_rgba(56,189,248,0.35)] transition hover:brightness-110 disabled:opacity-60"
+        >
+          {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden />}
+          {mode === 'login' ? 'Sign in' : 'Create account'}
+        </button>
+      </form>
+      <p className="mt-6 text-center text-sm text-slate-400">
+        {mode === 'login' ? "Don't have an account?" : 'Already registered?'}{' '}
+        <button className="font-semibold text-white hover:text-sky-300 hover:underline" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); }}>
+          {mode === 'login' ? 'Create one' : 'Sign in'}
+        </button>
+      </p>
+    </div>
+  );
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[#030712] text-white">
+      {/* Split background: deep blue left half, near-black right half */}
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,#0b1d4f_0%,#12307e_32%,#1d4ed8_49.9%,#030712_50%,#050a1a_100%)] max-xl:bg-[linear-gradient(180deg,#0b1d4f_0%,#12307e_45%,#030712_100%)]" />
+
+      {/* One responsive tree: stacked on mobile, full-bleed scene with overlays on large screens. */}
+      <header className="relative z-10 flex items-center gap-3 px-5 pt-5 xl:absolute xl:top-6 xl:left-8 xl:p-0">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/10 backdrop-blur"><Sparkles className="h-5 w-5" /></div>
+        <span className="font-bold">CareerPilot AI</span>
+        <span className="hidden h-5 w-px bg-white/25 xl:block" />
+        <span className="hidden items-center gap-1.5 text-sm text-blue-100/80 xl:flex"><Satellite className="h-4 w-4" /> Bengaluru · Hyderabad · Remote</span>
+      </header>
+
+      <div className="relative mt-2 h-56 sm:h-72 md:h-96 xl:absolute xl:inset-0 xl:mt-0 xl:h-auto">
+        <LoginScene fit="meet" className="absolute inset-0 h-full w-full xl:hidden" />
+        <LoginScene className="absolute inset-0 hidden h-full w-full xl:block" />
       </div>
 
-      <div className="flex items-center justify-center p-6">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy-900 text-white">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <span className="text-lg font-bold text-navy-900 dark:text-white">CareerPilot AI</span>
-            </div>
-            <p className="mt-2 text-sm text-slate-500">Find Opportunities. Prepare Smarter. Get Hired.</p>
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
-          <p className="mt-1 text-sm text-slate-500">{mode === 'login' ? 'Sign in to continue your job search.' : 'Your QA & fintech preferences are pre-filled – edit them anytime.'}</p>
+      <section className="relative z-10 px-5 text-center xl:absolute xl:text-left xl:top-1/2 xl:left-8 xl:w-[min(460px,32vw)] xl:-translate-y-1/2 xl:px-0 2xl:left-10">
+        <Pill />
+        <h1 className="mt-3 text-2xl leading-tight font-bold xl:mt-5 xl:text-4xl 2xl:text-[2.6rem]">
+          Find Opportunities.
+          <br className="hidden xl:block" /> Prepare Smarter.
+          <br className="hidden xl:block" />{' '}
+          <span className="bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">Get Hired.</span>
+        </h1>
+        <p className="mt-4 hidden text-sm leading-relaxed text-blue-100/90 xl:block 2xl:text-base">Your personal AI career assistant for QA, API, automation, performance and fintech testing roles in Bengaluru, Hyderabad and remote.</p>
+        <ul className="mt-6 hidden grid-cols-2 gap-x-5 gap-y-3 text-sm xl:grid">
+          {FEATURES.map(([Icon, t]) => (
+            <li key={t} className="flex items-center gap-2 text-blue-50"><Icon className="h-4 w-4 shrink-0 text-sky-300" /> {t}</li>
+          ))}
+        </ul>
+      </section>
 
-          <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
-            {mode === 'register' && (
-              <Field label="Full name">
-                {(id) => <Input id={id} name="fullName" autoComplete="name" required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />}
-              </Field>
-            )}
-            <Field label="Email">
-              {(id) => <Input id={id} name="email" type="email" autoComplete="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />}
-            </Field>
-            <Field label="Password" hint={mode === 'register' ? 'At least 8 characters' : undefined}>
-              {(id) => (
-                <Input id={id} name="password" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-              )}
-            </Field>
-            {error && (
-              <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-                {error}
-              </p>
-            )}
-            {info && <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{info}</p>}
-            <Button type="submit" loading={busy} className="w-full">
-              {mode === 'login' ? 'Sign in' : 'Create account'}
-            </Button>
-          </form>
-          <p className="mt-6 text-center text-sm text-slate-500">
-            {mode === 'login' ? "Don't have an account?" : 'Already registered?'}{' '}
-            <button
-              className="font-semibold text-navy-700 hover:underline dark:text-navy-300"
-              onClick={() => {
-                setMode(mode === 'login' ? 'register' : 'login');
-                setError(null);
-              }}
-            >
-              {mode === 'login' ? 'Create one' : 'Sign in'}
-            </button>
-          </p>
-        </div>
+      <p className="absolute bottom-6 left-8 z-10 hidden text-xs text-blue-200/70 xl:block">Jobs come only from official APIs and authorised feeds; other boards open in their own search.</p>
+
+      <div className="relative z-10 flex justify-center px-5 py-8 xl:absolute xl:top-1/2 xl:right-[6%] xl:block xl:w-[min(380px,26vw)] xl:-translate-y-1/2 xl:rounded-2xl xl:border xl:border-white/10 xl:bg-slate-950/55 xl:p-7 xl:shadow-2xl xl:backdrop-blur-md 2xl:right-[8%]">
+        {formCard}
       </div>
     </div>
   );

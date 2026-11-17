@@ -57,8 +57,29 @@
     transform: none;
   }
 }
+/* Login scene animations */
+.cp-beam {
+  stroke-dasharray: 10 14;
+  animation: cp-beam 1.6s linear infinite;
+}
+@keyframes cp-beam {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+.cp-float {
+  animation: cp-float 6s ease-in-out infinite;
+}
+@keyframes cp-float {
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .fade-in {
+  .fade-in,
+  .cp-beam,
+  .cp-float {
     animation: none;
   }
 }

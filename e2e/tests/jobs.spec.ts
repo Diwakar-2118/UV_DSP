@@ -87,7 +87,7 @@ test.describe('Job discovery', () => {
   test('external job boards are deep links, not scraped', async ({ page }) => {
     await registerViaApi(page);
     await page.goto('/jobs');
-    for (const [name, host] of [['LinkedIn', 'linkedin.com'], ['Naukri', 'naukri.com'], ['Indeed', 'indeed.com'], ['Wellfound', 'wellfound.com']]) {
+    for (const [name, host] of [['LinkedIn', 'linkedin.com'], ['Naukri', 'naukri.com'], ['Indeed', 'indeed.com'], ['Wellfound', 'wellfound.com'], ['Foundit', 'foundit.in']]) {
       await expect(page.getByRole('link', { name })).toHaveAttribute('href', new RegExp(host.replace('.', '\\.')));
     }
   });

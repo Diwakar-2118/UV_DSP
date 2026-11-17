@@ -224,6 +224,7 @@ export const SEARCH_LINK_SOURCES = [
   { id: 'naukri', name: 'Naukri', website: 'https://www.naukri.com' },
   { id: 'indeed', name: 'Indeed India', website: 'https://in.indeed.com' },
   { id: 'wellfound', name: 'Wellfound', website: 'https://wellfound.com' },
+  { id: 'foundit', name: 'Foundit', website: 'https://www.foundit.in' },
 ];
 
 export function buildSearchLinks(params: { keywords: string; location: string; days?: number; expMin?: number }) {
@@ -260,6 +261,11 @@ export function buildSearchLinks(params: { keywords: string; location: string; d
       id: 'wellfound',
       name: 'Wellfound',
       url: `https://wellfound.com/role/l/${slug(kw)}/${isRemote ? 'remote' : slug(loc === 'Bengaluru' ? 'bangalore' : loc)}`,
+    },
+    {
+      id: 'foundit',
+      name: 'Foundit',
+      url: `https://www.foundit.in/srp/results?${new URLSearchParams({ query: isRemote ? `${kw} remote` : kw, locations: isRemote ? 'India' : loc })}`,
     },
   ];
 }

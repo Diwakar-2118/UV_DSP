@@ -32,6 +32,9 @@ export default defineConfig({
       env: {
         NODE_ENV: 'test',
         PORT: String(API_PORT),
+        // Never touch a real database from tests, even if server/.env sets one.
+        DATABASE_URL: '',
+        POSTGRES_URL: '',
         PGLITE_DIR: '.data/e2e',
         ENABLE_LIVE_SOURCES: 'false',
         ENABLE_TEST_ROUTES: 'true',
