@@ -76,10 +76,38 @@
   }
 }
 
+/* Sudarshana Chakra: slow rotation around its own centre */
+.cp-spin,
+.cp-spin-rev {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cp-spin 120s linear infinite;
+}
+.cp-spin-rev {
+  animation-duration: 60s;
+  animation-direction: reverse;
+}
+@keyframes cp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.cp-blink {
+  animation: cp-blink 2.4s steps(1) infinite;
+}
+@keyframes cp-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fade-in,
   .cp-beam,
-  .cp-float {
+  .cp-float,
+  .cp-spin,
+  .cp-spin-rev,
+  .cp-blink {
     animation: none;
   }
 }

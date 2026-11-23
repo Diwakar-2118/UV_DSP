@@ -1,4 +1,6 @@
 import { useId } from 'react';
+import Chakra from './Chakra';
+import Globe from './Globe';
 
 /**
  * Decorative login illustration: globe, satellites and light beams linking to job boards.
@@ -28,20 +30,34 @@ function rim(x: number, y: number, inset = 0) {
   return { x: GLOBE.cx + Math.cos(a) * (GLOBE.r - inset), y: GLOBE.cy + Math.sin(a) * (GLOBE.r - inset) };
 }
 
+/** Communications satellite: gold MLI-foil bus, two solar wings with cell grids, dish antenna. */
 function Satellite({ p, x, y, scale = 1, rotate = 0 }: { p: string; x: number; y: number; scale?: number; rotate?: number }) {
+  const cells = [-33, -22, -11, 0, 11, 22, 33];
   return (
     <g transform={`translate(${x} ${y}) rotate(${rotate}) scale(${scale})`}>
+      {/* Solar wings on booms */}
+      <rect x={-118} y={-1.5} width={236} height={3} fill="#9ca3af" />
       {[-1, 1].map((side) => (
-        <g key={side} transform={`translate(${side * 58} 0)`}>
-          <rect x={-40} y={-22} width={80} height={44} rx={3} fill={`url(#${p}panel)`} stroke="#93c5fd" strokeOpacity={0.6} strokeWidth={1.2} />
-          {[-20, 0, 20].map((gx) => <line key={gx} x1={gx} y1={-22} x2={gx} y2={22} stroke="#bfdbfe" strokeOpacity={0.35} />)}
-          <line x1={-40} y1={0} x2={40} y2={0} stroke="#bfdbfe" strokeOpacity={0.35} />
+        <g key={side} transform={`translate(${side * 74} 0)`}>
+          <rect x={-40} y={-26} width={80} height={52} rx={1.5} fill={`url(#${p}cells)`} stroke="#cbd5e1" strokeWidth={1.6} />
+          {cells.map((gx) => <line key={gx} x1={gx + 5.5} y1={-26} x2={gx + 5.5} y2={26} stroke="#c7d2fe" strokeOpacity={0.35} strokeWidth={0.6} />)}
+          {[-17, -8.5, 0, 8.5, 17].map((gy) => <line key={gy} x1={-40} y1={gy} x2={40} y2={gy} stroke="#c7d2fe" strokeOpacity={0.3} strokeWidth={0.6} />)}
+          <rect x={-40} y={-26} width={80} height={52} rx={1.5} fill={`url(#${p}sheen)`} />
         </g>
       ))}
-      <rect x={-18} y={-4} width={36} height={8} fill="#cbd5e1" />
-      <rect x={-16} y={-18} width={32} height={36} rx={6} fill={`url(#${p}metal)`} stroke="#e2e8f0" strokeWidth={1} />
-      <circle cx={0} cy={0} r={7} fill="#0ea5e9" opacity={0.9} />
-      <circle cx={0} cy={0} r={3} fill="#e0f2fe" />
+      {/* Bus wrapped in gold thermal foil */}
+      <rect x={-22} y={-24} width={44} height={48} rx={3} fill={`url(#${p}foil)`} stroke="#7c4a03" strokeWidth={1} />
+      <path d="M-20 -14 l10 3 8 -4 10 5 12 -3 M-20 2 l7 -3 11 4 9 -2 13 3 M-20 15 l12 2 6 -4 12 3 10 -2" fill="none" stroke="#7c4a03" strokeOpacity={0.45} strokeWidth={0.8} />
+      <rect x={-22} y={-24} width={44} height={10} fill="#fff7d6" opacity={0.25} />
+      {/* Dish antenna and feed */}
+      <ellipse cx={0} cy={-34} rx={17} ry={7} fill={`url(#${p}dish)`} stroke="#e5e7eb" strokeWidth={1} />
+      <line x1={0} y1={-24} x2={0} y2={-31} stroke="#d1d5db" strokeWidth={2} />
+      <line x1={0} y1={-34} x2={0} y2={-46} stroke="#e5e7eb" strokeWidth={1.2} />
+      <circle cx={0} cy={-46} r={2} fill="#f8fafc" />
+      {/* Thruster nozzles + status light */}
+      <rect x={-12} y={24} width={7} height={5} fill="#6b7280" />
+      <rect x={5} y={24} width={7} height={5} fill="#6b7280" />
+      <circle className="cp-blink" cx={14} cy={-16} r={2} fill="#f87171" />
     </g>
   );
 }
@@ -53,29 +69,31 @@ export default function LoginScene({ className, fit = 'slice' }: { className?: s
   return (
     <svg className={className} viewBox="0 0 1440 810" preserveAspectRatio={`xMidYMid ${fit}`} aria-hidden="true" focusable="false">
       <defs>
-        <radialGradient id={p+'ocean'} cx="38%" cy="36%" r="72%">
-          <stop offset="0%" stopColor="#8fd3ff" />
-          <stop offset="22%" stopColor="#2f86dc" />
-          <stop offset="58%" stopColor="#0d3f8f" />
-          <stop offset="100%" stopColor="#04122f" />
+        <linearGradient id={p+'cells'} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#0b1b4d" />
+          <stop offset="0.5" stopColor="#1e3a8a" />
+          <stop offset="1" stopColor="#0f2463" />
+        </linearGradient>
+        <linearGradient id={p+'sheen'} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0.2" stopColor="#fff" stopOpacity={0} />
+          <stop offset="0.45" stopColor="#dbeafe" stopOpacity={0.35} />
+          <stop offset="0.6" stopColor="#fff" stopOpacity={0} />
+        </linearGradient>
+        <linearGradient id={p+'foil'} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#fde68a" />
+          <stop offset="0.35" stopColor="#d4a017" />
+          <stop offset="0.6" stopColor="#f6d365" />
+          <stop offset="1" stopColor="#a16207" />
+        </linearGradient>
+        <radialGradient id={p+'dish'} cx="40%" cy="40%" r="70%">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#9ca3af" />
         </radialGradient>
-        <linearGradient id={p+'night'} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0.45" stopColor="#020617" stopOpacity={0} />
-          <stop offset="1" stopColor="#020617" stopOpacity={0.85} />
-        </linearGradient>
-        <radialGradient id={p+'halo'} cx="50%" cy="50%" r="50%">
-          <stop offset="70%" stopColor="#60a5fa" stopOpacity={0} />
-          <stop offset="86%" stopColor="#60a5fa" stopOpacity={0.45} />
-          <stop offset="100%" stopColor="#60a5fa" stopOpacity={0} />
+        <radialGradient id={p+'atmo'} cx="50%" cy="50%" r="50%">
+          <stop offset="0.86" stopColor="#7dd3fc" stopOpacity={0} />
+          <stop offset="0.9" stopColor="#7dd3fc" stopOpacity={0.55} />
+          <stop offset="1" stopColor="#3b82f6" stopOpacity={0} />
         </radialGradient>
-        <linearGradient id={p+'panel'} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#1e3a8a" />
-          <stop offset="1" stopColor="#3b82f6" />
-        </linearGradient>
-        <linearGradient id={p+'metal'} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#f8fafc" />
-          <stop offset="1" stopColor="#94a3b8" />
-        </linearGradient>
         <linearGradient id={p+'beam'} x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stopColor="#e0f2fe" />
           <stop offset="1" stopColor="#60a5fa" />
@@ -90,18 +108,14 @@ export default function LoginScene({ className, fit = 'slice' }: { className?: s
         <filter id={p+'softglow'} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="14" />
         </filter>
-        <clipPath id={p+'globeClip'}>
-          <circle cx={GLOBE.cx} cy={GLOBE.cy} r={GLOBE.r} />
-        </clipPath>
       </defs>
 
       {STARS.map((s, i) => <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={s.o} />)}
 
-      {/* Orbit rings */}
-      {[260, 340, 430].map((r, i) => (
-        <circle key={r} cx={GLOBE.cx} cy={GLOBE.cy} r={r} fill="none" stroke="#93c5fd" strokeOpacity={0.12 - i * 0.03} strokeWidth={i === 0 ? 2 : 1} strokeDasharray={i === 1 ? '2 8' : undefined} />
-      ))}
-      <text x={GLOBE.cx - 70} y={GLOBE.cy - 340} fill="#93c5fd" opacity={0.35} fontSize={16}>Job discovery</text>
+      {/* Sri Vishnu Chakram (Sudarshana Chakra) haloing the Earth */}
+      <g opacity={0.4}>
+        <Chakra p={p + 'ch'} cx={GLOBE.cx} cy={GLOBE.cy} r={300} />
+      </g>
 
       {/* Beams to job boards */}
       {BOARDS.map((b, i) => {
@@ -120,32 +134,16 @@ export default function LoginScene({ className, fit = 'slice' }: { className?: s
       <line x1={sat.x + 40} y1={sat.y + 30} x2={rim(sat.x, sat.y, 20).x} y2={rim(sat.x, sat.y, 20).y} stroke="#bae6fd" strokeWidth={14} opacity={0.18} filter={`url(#${p}glow)`} />
       <line className="cp-beam" x1={sat.x + 40} y1={sat.y + 30} x2={rim(sat.x, sat.y, 20).x} y2={rim(sat.x, sat.y, 20).y} stroke="#f0f9ff" strokeWidth={3} />
 
-      {/* Globe */}
-      <circle cx={GLOBE.cx} cy={GLOBE.cy} r={GLOBE.r + 40} fill={`url(#${p}halo)`} />
-      <circle cx={GLOBE.cx} cy={GLOBE.cy} r={GLOBE.r + 6} fill="#3b82f6" opacity={0.35} filter={`url(#${p}softglow)`} />
-      <circle cx={GLOBE.cx} cy={GLOBE.cy} r={GLOBE.r} fill={`url(#${p}ocean)`} />
-      <g clipPath={`url(#${p}globeClip)`}>
-        {/* Stylised continents */}
-        <g fill="#2f7a4f" opacity={0.55}>
-          <path d="M610 330c30-25 80-30 110-12 18 12 8 34-12 40-22 8-26 30-48 34-24 5-40-12-52-30-8-12-8-22 2-32z" />
-          <path d="M700 400c26-6 52 6 60 30 8 26-6 48 4 70 10 22-8 44-30 48-26 4-36-18-40-40-4-20-20-30-18-52 2-26 4-50 24-56z" />
-          <path d="M780 340c30-6 70 2 86 26 10 16-6 30-24 32-20 2-30 18-48 16-22-2-30-20-34-36-2-18 4-34 20-38z" />
-          <path d="M800 470c18-4 34 10 34 26s-14 30-28 28c-16-2-24-16-22-30 2-12 6-22 16-24z" />
-          <path d="M580 470c16-8 36 0 40 16 4 18-10 30-24 32-16 2-28-10-30-24-1-10 4-19 14-24z" />
-        </g>
-        {/* Graticule */}
-        {[40, 90, 140].map((rx) => <ellipse key={rx} cx={GLOBE.cx} cy={GLOBE.cy} rx={rx} ry={GLOBE.r} fill="none" stroke="#fff" strokeOpacity={0.08} />)}
-        {[-90, -30, 30, 90].map((dy) => <ellipse key={dy} cx={GLOBE.cx} cy={GLOBE.cy + dy} rx={GLOBE.r * Math.cos(Math.asin(dy / GLOBE.r))} ry={10} fill="none" stroke="#fff" strokeOpacity={0.07} />)}
-        <rect x={GLOBE.cx - GLOBE.r} y={GLOBE.cy - GLOBE.r} width={GLOBE.r * 2} height={GLOBE.r * 2} fill={`url(#${p}night)`} />
-        {/* City lights on the night side */}
-        {Array.from({ length: 26 }, (_, i) => (
-          <circle key={i} cx={GLOBE.cx + 40 + ((i * 37) % 120)} cy={GLOBE.cy - 90 + ((i * 53) % 190)} r={1.4} fill="#fde68a" opacity={0.75} />
-        ))}
-      </g>
-      <circle cx={GLOBE.cx} cy={GLOBE.cy} r={GLOBE.r} fill="none" stroke="#bae6fd" strokeOpacity={0.5} strokeWidth={1.5} />
+      {/* Globe: photorealistic canvas (NASA textures) over a plain sphere fallback */}
+      <circle cx={GLOBE.cx} cy={GLOBE.cy} r={GLOBE.r + 10} fill="#38bdf8" opacity={0.35} filter={`url(#${p}softglow)`} />
+      <circle cx={GLOBE.cx} cy={GLOBE.cy} r={GLOBE.r} fill="#0b3a75" />
+      <foreignObject x={GLOBE.cx - GLOBE.r} y={GLOBE.cy - GLOBE.r} width={GLOBE.r * 2} height={GLOBE.r * 2}>
+        <Globe className="block h-full w-full rounded-full" />
+      </foreignObject>
+      <circle cx={GLOBE.cx} cy={GLOBE.cy} r={GLOBE.r * 1.12} fill={`url(#${p}atmo)`} pointerEvents="none" />
 
       {/* Satellites */}
-      <Satellite p={p} x={sat.x} y={sat.y} scale={1.25} rotate={-24} />
+      <Satellite p={p} x={sat.x} y={sat.y} scale={1.05} rotate={-24} />
       <g className="cp-float"><Satellite p={p} x={500} y={150} scale={0.45} rotate={18} /></g>
       <g className="cp-float" style={{ animationDelay: '1.5s' }}><Satellite p={p} x={600} y={200} scale={0.4} rotate={-30} /></g>
       <g className="cp-float" style={{ animationDelay: '0.8s' }}><Satellite p={p} x={1180} y={95} scale={0.35} rotate={35} /></g>
