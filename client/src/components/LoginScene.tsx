@@ -30,34 +30,67 @@ function rim(x: number, y: number, inset = 0) {
   return { x: GLOBE.cx + Math.cos(a) * (GLOBE.r - inset), y: GLOBE.cy + Math.sin(a) * (GLOBE.r - inset) };
 }
 
-/** Communications satellite: gold MLI-foil bus, two solar wings with cell grids, dish antenna. */
+/**
+ * Communications satellite in 3/4 view: a box-shaped bus wrapped in crinkled gold MLI foil
+ * (turbulence + diffuse-lighting filter), white radiator top, two hinged solar arrays made of
+ * individual cells, booms, a parabolic dish with feed struts and an omni antenna. Lit from the upper left.
+ */
+const CELL_COLS = [0, 1, 2, 3, 4, 5];
+const CELL_ROWS = [0, 1, 2, 3];
+
+function SolarWing({ p, side }: { p: string; side: 1 | -1 }) {
+  // Panels are drawn for the right wing and mirrored for the left; skew gives a perspective tilt.
+  const panel = (x0: number) => (
+    <g transform={`translate(${x0} 0)`}>
+      <rect x={-1.5} y={-21.5} width={63} height={45} fill="#64748b" />
+      <rect x={-1.5} y={-21.5} width={63} height={43} fill={`url(#${p}frame)`} />
+      {CELL_ROWS.map((r) =>
+        CELL_COLS.map((c) => <rect key={`${r}-${c}`} x={c * 10} y={-20 + r * 10} width={9.2} height={9.2} fill={`url(#${p}cell)`} />),
+      )}
+      {CELL_ROWS.map((r) => <line key={r} x1={0} y1={-20 + r * 10 + 4.6} x2={60} y2={-20 + r * 10 + 4.6} stroke="#93a5d6" strokeOpacity={0.18} strokeWidth={0.4} />)}
+      <rect x={0} y={-20} width={60} height={40} fill={`url(#${p}sheen)`} />
+    </g>
+  );
+  return (
+    <g transform={`scale(${side} 1) skewY(-9)`}>
+      <rect x={30} y={-1.6} width={16} height={3.2} fill={`url(#${p}boom)`} />
+      <rect x={44} y={-5} width={4} height={10} rx={1} fill="#94a3b8" />
+      {panel(48)}
+      <rect x={110} y={-3} width={4} height={6} fill="#94a3b8" />
+      {panel(116)}
+    </g>
+  );
+}
+
 function Satellite({ p, x, y, scale = 1, rotate = 0 }: { p: string; x: number; y: number; scale?: number; rotate?: number }) {
-  const cells = [-33, -22, -11, 0, 11, 22, 33];
   return (
     <g transform={`translate(${x} ${y}) rotate(${rotate}) scale(${scale})`}>
-      {/* Solar wings on booms */}
-      <rect x={-118} y={-1.5} width={236} height={3} fill="#9ca3af" />
-      {[-1, 1].map((side) => (
-        <g key={side} transform={`translate(${side * 74} 0)`}>
-          <rect x={-40} y={-26} width={80} height={52} rx={1.5} fill={`url(#${p}cells)`} stroke="#cbd5e1" strokeWidth={1.6} />
-          {cells.map((gx) => <line key={gx} x1={gx + 5.5} y1={-26} x2={gx + 5.5} y2={26} stroke="#c7d2fe" strokeOpacity={0.35} strokeWidth={0.6} />)}
-          {[-17, -8.5, 0, 8.5, 17].map((gy) => <line key={gy} x1={-40} y1={gy} x2={40} y2={gy} stroke="#c7d2fe" strokeOpacity={0.3} strokeWidth={0.6} />)}
-          <rect x={-40} y={-26} width={80} height={52} rx={1.5} fill={`url(#${p}sheen)`} />
-        </g>
-      ))}
-      {/* Bus wrapped in gold thermal foil */}
-      <rect x={-22} y={-24} width={44} height={48} rx={3} fill={`url(#${p}foil)`} stroke="#7c4a03" strokeWidth={1} />
-      <path d="M-20 -14 l10 3 8 -4 10 5 12 -3 M-20 2 l7 -3 11 4 9 -2 13 3 M-20 15 l12 2 6 -4 12 3 10 -2" fill="none" stroke="#7c4a03" strokeOpacity={0.45} strokeWidth={0.8} />
-      <rect x={-22} y={-24} width={44} height={10} fill="#fff7d6" opacity={0.25} />
-      {/* Dish antenna and feed */}
-      <ellipse cx={0} cy={-34} rx={17} ry={7} fill={`url(#${p}dish)`} stroke="#e5e7eb" strokeWidth={1} />
-      <line x1={0} y1={-24} x2={0} y2={-31} stroke="#d1d5db" strokeWidth={2} />
-      <line x1={0} y1={-34} x2={0} y2={-46} stroke="#e5e7eb" strokeWidth={1.2} />
-      <circle cx={0} cy={-46} r={2} fill="#f8fafc" />
-      {/* Thruster nozzles + status light */}
-      <rect x={-12} y={24} width={7} height={5} fill="#6b7280" />
-      <rect x={5} y={24} width={7} height={5} fill="#6b7280" />
-      <circle className="cp-blink" cx={14} cy={-16} r={2} fill="#f87171" />
+      <SolarWing p={p} side={-1} />
+      <SolarWing p={p} side={1} />
+      {/* Bus: side (shadow), top (radiator) and front faces */}
+      <path d="M20 -22 L30 -31 L30 13 L20 22 Z" fill={`url(#${p}foilDark)`} filter={`url(#${p}crinkle)`} />
+      <path d="M-22 -22 L-12 -31 L30 -31 L20 -22 Z" fill="#e5e7eb" />
+      {[-6, 2, 10, 18].map((dx) => <line key={dx} x1={-16 + dx} y1={-26.5} x2={-10 + dx} y2={-26.5} stroke="#94a3b8" strokeWidth={0.8} />)}
+      <rect x={-22} y={-22} width={42} height={44} fill={`url(#${p}foil)`} filter={`url(#${p}crinkle)`} />
+      <line x1={-22} y1={-22} x2={20} y2={-22} stroke="#fff7d6" strokeOpacity={0.9} strokeWidth={0.8} />
+      <line x1={-22} y1={-22} x2={-22} y2={22} stroke="#fff7d6" strokeOpacity={0.6} strokeWidth={0.8} />
+      {/* Sensor / star tracker on the front face */}
+      <rect x={6} y={6} width={9} height={9} rx={1.5} fill="#1f2937" stroke="#9ca3af" strokeWidth={0.8} />
+      <circle cx={10.5} cy={10.5} r={2.6} fill="#0ea5e9" opacity={0.6} />
+      {/* Parabolic dish with feed struts */}
+      <g transform="translate(-6 -40) rotate(-18)">
+        <ellipse cx={0} cy={2} rx={17} ry={6.5} fill="#6b7280" />
+        <ellipse cx={0} cy={0} rx={17} ry={6.5} fill={`url(#${p}dish)`} stroke="#f8fafc" strokeWidth={0.8} />
+        <ellipse cx={-2} cy={-0.5} rx={8} ry={2.6} fill="#ffffff" opacity={0.35} />
+        <path d="M-12 -2 L0 -16 M12 -2 L0 -16 M0 3 L0 -16" stroke="#cbd5e1" strokeWidth={0.8} fill="none" />
+        <circle cx={0} cy={-16} r={1.8} fill="#e5e7eb" />
+      </g>
+      <line x1={-6} y1={-33} x2={-6} y2={-29} stroke="#9ca3af" strokeWidth={3} />
+      {/* Omni antenna + thrusters */}
+      <line x1={24} y1={-30} x2={27} y2={-44} stroke="#d1d5db" strokeWidth={1} />
+      <circle cx={27} cy={-44} r={1.4} fill="#f1f5f9" />
+      {[-14, -2, 10].map((tx) => <path key={tx} d={`M${tx} 22 l1.5 5 h5 l1.5 -5 z`} fill="#4b5563" />)}
+      <circle className="cp-blink" cx={-17} cy={-17} r={1.6} fill="#f87171" />
     </g>
   );
 }
@@ -65,30 +98,52 @@ function Satellite({ p, x, y, scale = 1, rotate = 0 }: { p: string; x: number; y
 export default function LoginScene({ className, fit = 'slice' }: { className?: string; fit?: 'slice' | 'meet' }) {
   // Unique id prefix: the page renders two scenes (mobile + desktop) and SVG ids must not collide.
   const p = 'cp' + useId().replace(/[^a-zA-Z0-9]/g, '');
-  const sat = { x: 470, y: 330 };
+  const sat = { x: 545, y: 300 };
   return (
     <svg className={className} viewBox="0 0 1440 810" preserveAspectRatio={`xMidYMid ${fit}`} aria-hidden="true" focusable="false">
       <defs>
-        <linearGradient id={p+'cells'} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#0b1b4d" />
-          <stop offset="0.5" stopColor="#1e3a8a" />
-          <stop offset="1" stopColor="#0f2463" />
+        <linearGradient id={p+'cell'} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#2a3f8f" />
+          <stop offset="0.55" stopColor="#14225c" />
+          <stop offset="1" stopColor="#0a1238" />
+        </linearGradient>
+        <linearGradient id={p+'frame'} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#e2e8f0" />
+          <stop offset="1" stopColor="#94a3b8" />
         </linearGradient>
         <linearGradient id={p+'sheen'} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0.2" stopColor="#fff" stopOpacity={0} />
-          <stop offset="0.45" stopColor="#dbeafe" stopOpacity={0.35} />
-          <stop offset="0.6" stopColor="#fff" stopOpacity={0} />
+          <stop offset="0.15" stopColor="#fff" stopOpacity={0} />
+          <stop offset="0.38" stopColor="#c7d7ff" stopOpacity={0.32} />
+          <stop offset="0.5" stopColor="#fff" stopOpacity={0.05} />
+          <stop offset="0.7" stopColor="#fff" stopOpacity={0} />
+        </linearGradient>
+        <linearGradient id={p+'boom'} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#f1f5f9" />
+          <stop offset="1" stopColor="#64748b" />
         </linearGradient>
         <linearGradient id={p+'foil'} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#fde68a" />
-          <stop offset="0.35" stopColor="#d4a017" />
-          <stop offset="0.6" stopColor="#f6d365" />
-          <stop offset="1" stopColor="#a16207" />
+          <stop offset="0" stopColor="#ffe7a3" />
+          <stop offset="0.4" stopColor="#e0a526" />
+          <stop offset="0.7" stopColor="#f3c851" />
+          <stop offset="1" stopColor="#9a6408" />
         </linearGradient>
-        <radialGradient id={p+'dish'} cx="40%" cy="40%" r="70%">
+        <linearGradient id={p+'foilDark'} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#b7801a" />
+          <stop offset="1" stopColor="#5e3b05" />
+        </linearGradient>
+        <radialGradient id={p+'dish'} cx="35%" cy="35%" r="75%">
           <stop offset="0" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#9ca3af" />
+          <stop offset="0.6" stopColor="#d1d5db" />
+          <stop offset="1" stopColor="#8b95a5" />
         </radialGradient>
+        <filter id={p+'crinkle'} x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves={2} seed={7} result="n" />
+          <feDiffuseLighting in="n" surfaceScale={2.4} lightingColor="#ffffff" result="l">
+            <feDistantLight azimuth={225} elevation={48} />
+          </feDiffuseLighting>
+          <feComposite in="SourceGraphic" in2="l" operator="arithmetic" k1={1.35} k2={0} k3={0} k4={0} result="c" />
+          <feComposite in="c" in2="SourceGraphic" operator="in" />
+        </filter>
         <radialGradient id={p+'atmo'} cx="50%" cy="50%" r="50%">
           <stop offset="0.86" stopColor="#7dd3fc" stopOpacity={0} />
           <stop offset="0.9" stopColor="#7dd3fc" stopOpacity={0.55} />
@@ -143,11 +198,10 @@ export default function LoginScene({ className, fit = 'slice' }: { className?: s
       <circle cx={GLOBE.cx} cy={GLOBE.cy} r={GLOBE.r * 1.12} fill={`url(#${p}atmo)`} pointerEvents="none" />
 
       {/* Satellites */}
-      <Satellite p={p} x={sat.x} y={sat.y} scale={1.05} rotate={-24} />
-      <g className="cp-float"><Satellite p={p} x={500} y={150} scale={0.45} rotate={18} /></g>
-      <g className="cp-float" style={{ animationDelay: '1.5s' }}><Satellite p={p} x={600} y={200} scale={0.4} rotate={-30} /></g>
-      <g className="cp-float" style={{ animationDelay: '0.8s' }}><Satellite p={p} x={1180} y={95} scale={0.35} rotate={35} /></g>
-      <g className="cp-float" style={{ animationDelay: '2.2s' }}><Satellite p={p} x={580} y={600} scale={0.42} rotate={-15} /></g>
+      <Satellite p={p} x={sat.x} y={sat.y} scale={0.7} rotate={-22} />
+      <g className="cp-float"><Satellite p={p} x={520} y={150} scale={0.32} rotate={16} /></g>
+      <g className="cp-float" style={{ animationDelay: '0.8s' }}><Satellite p={p} x={1185} y={95} scale={0.27} rotate={32} /></g>
+      <g className="cp-float" style={{ animationDelay: '2.2s' }}><Satellite p={p} x={585} y={610} scale={0.3} rotate={-14} /></g>
 
       {/* Ground dish near the bottom-left badge */}
       <g transform="translate(330 748)">
