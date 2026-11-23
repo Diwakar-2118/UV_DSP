@@ -14,9 +14,10 @@ export const remotive: JobSourceAdapter = {
   name: 'Remotive',
   kind: 'api',
   website: 'https://remotive.com',
-  description: 'Public remote-jobs API (QA category). Listings link back to Remotive as their terms require.',
+  description: 'Public remote-jobs API. Off by default: its free feed currently ignores the QA category and returns unrelated roles. Listings link back to Remotive as their terms require.',
   requiresCredentials: false,
   isLive: true,
+  defaultEnabled: false,
   unavailableReason: () => null,
   async fetch() {
     const data = await fetchJson<{ jobs: any[] }>('https://remotive.com/api/remote-jobs?category=qa&limit=150');

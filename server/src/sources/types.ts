@@ -27,6 +27,8 @@ export interface JobSourceAdapter {
   description: string;
   requiresCredentials: boolean;
   isLive: boolean;
+  /** Initial on/off state when the source is first registered (default true). Users can toggle it in Settings. */
+  defaultEnabled?: boolean;
   /** Returns a reason string when the adapter cannot run (missing credentials, disabled, ...) */
   unavailableReason(): string | null;
   fetch(): Promise<RawJob[]>;

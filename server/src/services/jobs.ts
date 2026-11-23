@@ -27,11 +27,11 @@ export interface IngestStats {
 export async function syncSourceRegistry(db: Db) {
   for (const a of ADAPTERS) {
     await db.query(
-      `INSERT INTO job_sources (id, name, kind, website, description, requires_credentials, is_live)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)
+      `INSERT INTO job_sources (id, name, kind, website, description, requires_credentials, is_live, enabled)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
        ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, kind=EXCLUDED.kind, website=EXCLUDED.website,
          description=EXCLUDED.description, requires_credentials=EXCLUDED.requires_credentials, is_live=EXCLUDED.is_live`,
-      [a.id, a.name, a.kind, a.website, a.description, a.requiresCredentials, a.isLive],
+      [a.id, a.name, a.kind, a.website, a.description, a.requiresCredentials, a.isLive, a.defaultEnabled ?? true],
     );
   }
   for (const s of SEARCH_LINK_SOURCES) {
@@ -161,8 +161,8 @@ async function runSource(db: Db, a: JobSourceAdapter): Promise<SourceRunResult> 
     // Listings that disappeared from a successful fetch are closed.
     if (a.isLive) await db.query(`UPDATE jobs SET is_active=false WHERE source_id=$1 AND last_seen_at < $2 AND first_seen_at < $2`, [a.id, started]);
     await db.query(
-      `UPDATE job_sources SET last_run_at=now(), last_status='ok', last_error=NULL, last_fetched=$2, last_inserted=$3 WHERE id=$1`,
-      [a.id, stats.fetched, stats.inserted],
+      `UPDATE job_sources SET last_run_at=now(), last_status='ok', last_error=NULL, last_fetched=$2, last_relevant=$3, last_inserted=$4 WHERE id=$1`,
+      [a.id, stats.fetched, stats.relevant, stats.inserted],
     );
     const { insertedIds, ...rest } = stats;
     return { source: a.id, status: 'ok', stats: rest };

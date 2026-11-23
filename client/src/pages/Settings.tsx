@@ -13,7 +13,7 @@ interface Status {
   scheduler: { enabled: boolean; running: boolean; timezone: string; collectCron: string; digestCheckCron: string; lastCollectionAt: string | null; nextCollectionAt: string | null };
   liveSourcesEnabled: boolean;
 }
-interface Source { id: string; name: string; kind: string; website: string; description: string; enabled: boolean; requires_credentials: boolean; is_live: boolean; last_run_at: string | null; last_status: string | null; last_error: string | null; last_fetched: number; last_inserted: number; active_jobs: number }
+interface Source { id: string; name: string; kind: string; website: string; description: string; enabled: boolean; requires_credentials: boolean; is_live: boolean; last_run_at: string | null; last_status: string | null; last_error: string | null; last_fetched: number; last_relevant?: number; last_inserted: number; active_jobs: number }
 
 export default function SettingsPage() {
   const { theme, set } = useTheme();
@@ -91,7 +91,7 @@ export default function SettingsPage() {
                 <p className="mt-1 text-xs text-slate-500">{s.description}</p>
                 {s.kind !== 'search_link' && (
                   <p className="mt-1 text-xs text-slate-500">
-                    {s.active_jobs} active job(s){s.last_run_at && ` · last run ${timeAgo(s.last_run_at)}: fetched ${s.last_fetched}, new ${s.last_inserted}`}
+                    {s.active_jobs} active job(s){s.last_run_at && ` · last run ${timeAgo(s.last_run_at)}: fetched ${s.last_fetched}, QA roles ${s.last_relevant ?? 0}, new ${s.last_inserted}`}
                     {s.last_error && <span className="text-amber-700"> · {s.last_error}</span>}
                   </p>
                 )}
