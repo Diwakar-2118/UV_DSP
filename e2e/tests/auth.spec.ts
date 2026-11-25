@@ -28,7 +28,7 @@ test.describe('Registration & login', () => {
     const dup = await request.post('/api/auth/register', { data: { fullName: 'B', email, password: PASSWORD } });
     expect(dup.status()).toBe(409);
     await page.goto('/login');
-    await page.getByRole('button', { name: 'Create one' }).click();
+    await page.getByRole('tab', { name: 'Create account' }).click();
     await page.getByLabel('Full name').fill('Short');
     await page.getByLabel('Email').fill(uniqueEmail('short'));
     await page.getByLabel('Password').fill('123');

@@ -7,7 +7,7 @@ export const PASSWORD = 'Sup3r-secret!';
 export async function registerViaUi(page: Page, name = 'E2E Tester') {
   const email = uniqueEmail('ui');
   await page.goto('/login');
-  await page.getByRole('button', { name: 'Create one' }).click();
+  await page.getByRole('tab', { name: 'Create account' }).click();
   await page.getByLabel('Full name').fill(name);
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(PASSWORD);

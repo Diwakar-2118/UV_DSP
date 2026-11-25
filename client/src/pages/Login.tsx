@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Bell, BookOpen, Briefcase, Sparkles, Target } from 'lucide-react';
 import { useAuth } from '../lib/context';
-import LoginScene from '../components/LoginScene';
+import ParticleChakra from '../components/ParticleChakra';
 
 const FEATURES = [
   [Target, 'Transparent job match scores'],
@@ -12,7 +12,8 @@ const FEATURES = [
 ] as const;
 
 const inputCls =
-  'w-full rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 transition focus:border-amber-300 focus:ring-2 focus:ring-amber-300/30 focus:outline-none';
+  'w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-white/30 transition focus:border-amber-200/60 focus:bg-white/[0.06] focus:ring-4 focus:ring-amber-200/10 focus:outline-none';
+const labelCls = 'mb-1.5 block text-xs font-medium text-white/60';
 
 export default function LoginPage() {
   const { login, register } = useAuth();
@@ -48,92 +49,117 @@ export default function LoginPage() {
     }
   };
 
-  const Pill = () => (
-    <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-amber-400/10 px-3 py-1 text-xs font-medium text-amber-100 shadow-[0_0_20px_rgba(251,191,36,0.2)]">
-      <span className="relative flex h-2 w-2">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-60 motion-reduce:animate-none" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-300" />
-      </span>
-      Multi-Platform Job Discovery
-    </span>
-  );
-
-  const formCard = (
-    <div className="w-full max-w-sm">
-      <h2 className="text-2xl font-bold text-white">{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
-      <p className="mt-1 text-sm text-slate-400">{mode === 'login' ? 'Sign in to continue your job search.' : 'Your QA & fintech preferences are pre-filled – edit them anytime.'}</p>
-      <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
-        {mode === 'register' && (
-          <div>
-            <label htmlFor="cp-name" className="mb-1 block text-[11px] font-semibold tracking-wider text-slate-300 uppercase">Full name</label>
-            <input id="cp-name" name="fullName" autoComplete="name" required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className={inputCls} />
-          </div>
-        )}
-        <div>
-          <label htmlFor="cp-email" className="mb-1 block text-[11px] font-semibold tracking-wider text-slate-300 uppercase">Email</label>
-          <input id="cp-email" name="email" type="email" autoComplete="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} />
-        </div>
-        <div>
-          <label htmlFor="cp-password" className="mb-1 block text-[11px] font-semibold tracking-wider text-slate-300 uppercase">Password</label>
-          <input id="cp-password" name="password" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className={inputCls} />
-          {mode === 'register' && <p className="mt-1 text-xs text-slate-500">At least 8 characters</p>}
-        </div>
-        {error && <p role="alert" className="rounded-lg border border-red-500/40 bg-red-950/70 px-3 py-2 text-sm text-red-200">{error}</p>}
-        {info && <p className="rounded-lg border border-emerald-500/40 bg-emerald-950/70 px-3 py-2 text-sm text-emerald-200">{info}</p>}
-        <button
-          type="submit"
-          disabled={busy}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-300 via-amber-400 to-orange-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_24px_rgba(251,191,36,0.3)] transition hover:brightness-110 disabled:opacity-60"
-        >
-          {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-900/30 border-t-slate-900" aria-hidden />}
-          {mode === 'login' ? 'Sign in' : 'Create account'}
-        </button>
-      </form>
-      <p className="mt-6 text-center text-sm text-slate-400">
-        {mode === 'login' ? "Don't have an account?" : 'Already registered?'}{' '}
-        <button className="font-semibold text-white hover:text-amber-300 hover:underline" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null); }}>
-          {mode === 'login' ? 'Create one' : 'Sign in'}
-        </button>
-      </p>
-    </div>
-  );
+  const switchMode = (m: 'login' | 'register') => {
+    setMode(m);
+    setError(null);
+  };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#060a1e] text-white">
-      {/* One deep-space midnight tone, gently lifted around the Earth and darkened at the edges */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_70%_at_50%_50%,#121c45_0%,#0a1130_45%,#060a1e_100%)] max-xl:bg-[radial-gradient(ellipse_90%_45%_at_50%_22%,#121c45_0%,#0a1130_50%,#060a1e_100%)]" />
+    <div className="relative min-h-screen overflow-hidden bg-black text-white selection:bg-amber-200/30">
+      {/* Interactive stardust Sudarshana Chakra fills the background */}
+      <ParticleChakra className="absolute inset-0 h-full w-full touch-pan-y lg:touch-none" />
+      {/* Soft vignette keeps the text and card readable */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.65)_100%)]" />
 
-      {/* One responsive tree: stacked on mobile, full-bleed scene with overlays on large screens. */}
-      <header className="relative z-10 flex items-center gap-3 px-5 pt-5 xl:absolute xl:top-6 xl:left-8 xl:p-0">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/10 backdrop-blur"><Sparkles className="h-5 w-5" /></div>
-        <span className="font-bold">CareerPilot AI</span>
+      <header className="pointer-events-none relative z-10 flex items-center gap-2.5 px-6 pt-6 lg:absolute lg:top-8 lg:left-[7%] lg:p-0">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-amber-200/30 bg-amber-200/10">
+          <Sparkles className="h-4 w-4 text-amber-200" />
+        </div>
+        <span className="text-sm font-semibold tracking-[0.2em] text-white/85 uppercase">CareerPilot AI</span>
       </header>
 
-      <div className="relative mt-2 h-56 sm:h-72 md:h-96 xl:absolute xl:inset-0 xl:mt-0 xl:h-auto">
-        <LoginScene fit="meet" className="absolute inset-0 h-full w-full xl:hidden" />
-        <LoginScene className="absolute inset-0 hidden h-full w-full xl:block" />
-      </div>
+      <main className="pointer-events-none relative z-10 flex min-h-screen flex-col px-6 pb-10 lg:block lg:pb-0">
+        {/* Left: headline. Click-through so the stars underneath stay interactive. */}
+        <section className="mt-[34vh] text-center lg:absolute lg:top-1/2 lg:left-[7%] lg:mt-0 lg:w-[min(440px,30vw)] lg:-translate-y-1/2 lg:text-left">
+          <h1 className="text-3xl leading-[1.1] font-light tracking-tight text-white sm:text-4xl xl:text-5xl">
+            Find Opportunities.
+            <br />
+            Prepare Smarter.
+            <br />
+            <span className="bg-gradient-to-r from-amber-100 via-amber-300 to-orange-300 bg-clip-text font-normal text-transparent">Get Hired.</span>
+          </h1>
+          <ul className="mt-7 hidden flex-wrap gap-2 lg:flex">
+            {FEATURES.map(([Icon, t]) => (
+              <li key={t} className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 backdrop-blur-sm">
+                <Icon className="h-3.5 w-3.5 text-amber-200/80" /> {t}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-8 hidden text-[11px] tracking-wide text-white/35 lg:block">Move to stir the stars · click to send a pulse · drag to tilt the Chakram</p>
+        </section>
 
-      <section className="relative z-10 px-5 text-center xl:absolute xl:text-left xl:top-1/2 xl:left-8 xl:w-[min(460px,32vw)] xl:-translate-y-1/2 xl:px-0 2xl:left-10">
-        <Pill />
-        <h1 className="mt-3 text-2xl leading-tight font-bold xl:mt-5 xl:text-4xl 2xl:text-[2.6rem]">
-          Find Opportunities.
-          <br className="hidden xl:block" /> Prepare Smarter.
-          <br className="hidden xl:block" />{' '}
-          <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-orange-300 bg-clip-text text-transparent">Get Hired.</span>
-        </h1>
-        <ul className="mt-7 hidden grid-cols-2 gap-x-5 gap-y-3 text-sm xl:grid">
-          {FEATURES.map(([Icon, t]) => (
-            <li key={t} className="flex items-center gap-2 text-slate-100"><Icon className="h-4 w-4 shrink-0 text-amber-300" /> {t}</li>
-          ))}
-        </ul>
-      </section>
+        {/* Right: auth card */}
+        <div className="mt-8 flex justify-center lg:absolute lg:top-1/2 lg:right-[7%] lg:mt-0 lg:block lg:-translate-y-1/2">
+          <div className="pointer-events-auto relative w-full max-w-[400px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.035] p-7 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.9)] backdrop-blur-2xl sm:p-8 lg:w-[400px]">
+            <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/60 to-transparent" />
 
-      <p className="absolute bottom-6 left-8 z-10 hidden text-xs text-slate-400 xl:block">Jobs come only from official APIs and authorised feeds; other boards open in their own search.</p>
+            {/* Segmented switch */}
+            <div className="relative grid grid-cols-2 rounded-full border border-white/10 bg-black/40 p-1 text-sm" role="tablist">
+              <span
+                className={`absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-white/10 transition-transform duration-300 ${mode === 'register' ? 'translate-x-full' : ''}`}
+                aria-hidden
+              />
+              {(['login', 'register'] as const).map((m) => (
+                <button
+                  key={m}
+                  role="tab"
+                  aria-selected={mode === m}
+                  type="button"
+                  onClick={() => switchMode(m)}
+                  className={`relative z-10 rounded-full py-2 font-medium transition ${mode === m ? 'text-white' : 'text-white/45 hover:text-white/70'}`}
+                >
+                  {m === 'login' ? 'Sign in' : 'Create account'}
+                </button>
+              ))}
+            </div>
 
-      <div className="relative z-10 flex justify-center px-5 py-8 xl:absolute xl:top-1/2 xl:right-[6%] xl:block xl:w-[min(380px,26vw)] xl:-translate-y-1/2 xl:rounded-2xl xl:border xl:border-amber-200/10 xl:bg-[#070b20]/70 xl:p-7 xl:shadow-2xl xl:backdrop-blur-md 2xl:right-[8%]">
-        {formCard}
-      </div>
+            <h2 className="mt-7 text-2xl font-light tracking-tight">{mode === 'login' ? 'Welcome back' : 'Begin your journey'}</h2>
+            <p className="mt-1 text-sm text-white/45">
+              {mode === 'login' ? 'Sign in to continue your job search.' : 'Your QA & fintech preferences are pre-filled – edit them anytime.'}
+            </p>
+
+            <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
+              {mode === 'register' && (
+                <div>
+                  <label htmlFor="cp-name" className={labelCls}>Full name</label>
+                  <input id="cp-name" name="fullName" autoComplete="name" required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className={inputCls} />
+                </div>
+              )}
+              <div>
+                <label htmlFor="cp-email" className={labelCls}>Email</label>
+                <input id="cp-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} />
+              </div>
+              <div>
+                <label htmlFor="cp-password" className={labelCls}>Password</label>
+                <input
+                  id="cp-password"
+                  name="password"
+                  type="password"
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  required
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className={inputCls}
+                />
+                {mode === 'register' && <p className="mt-1.5 text-xs text-white/35">At least 8 characters</p>}
+              </div>
+              {error && <p role="alert" className="rounded-xl border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">{error}</p>}
+              {info && <p className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">{info}</p>}
+              <button
+                type="submit"
+                disabled={busy}
+                className="group mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-100 via-amber-200 to-amber-300 px-4 py-3 text-sm font-semibold text-black shadow-[0_0_40px_-8px_rgba(253,230,138,0.6)] transition hover:shadow-[0_0_50px_-6px_rgba(253,230,138,0.8)] hover:brightness-105 disabled:opacity-60"
+              >
+                {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" aria-hidden />}
+                {mode === 'login' ? 'Sign in' : 'Create account'}
+                <span className="transition-transform group-hover:translate-x-0.5" aria-hidden>→</span>
+              </button>
+            </form>
+
+            <p className="mt-6 text-center text-xs leading-relaxed text-white/30">Jobs come only from official APIs and authorised feeds; other boards open in their own search.</p>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
