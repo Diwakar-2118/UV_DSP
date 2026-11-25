@@ -57,6 +57,79 @@
     transform: none;
   }
 }
+/* Satellite loader */
+.cpl-orbit {
+  transform-box: view-box;
+  transform-origin: 60px 72px;
+  animation: cpl-orbit 3.2s linear infinite;
+}
+@keyframes cpl-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.cpl-beam {
+  stroke-dasharray: 3 4;
+  animation: cpl-beam 0.6s linear infinite;
+}
+@keyframes cpl-beam {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+.cpl-ripple {
+  transform-box: view-box;
+  transform-origin: 60px 72px;
+  opacity: 0;
+  animation: cpl-ripple 1.8s ease-out infinite;
+}
+@keyframes cpl-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+.cpl-blink {
+  animation: cpl-blink 1.2s steps(1) infinite;
+}
+@keyframes cpl-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+.cpl-dots span {
+  animation: cpl-dots 1.2s infinite;
+  opacity: 0.2;
+}
+.cpl-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.cpl-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes cpl-dots {
+  40% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cpl-orbit,
+  .cpl-beam,
+  .cpl-ripple,
+  .cpl-blink,
+  .cpl-dots span {
+    animation: none;
+  }
+  .cpl-dots span {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fade-in {
     animation: none;

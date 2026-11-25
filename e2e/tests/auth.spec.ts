@@ -11,6 +11,13 @@ test.describe('Registration & login', () => {
     await page.getByLabel('Password').fill(PASSWORD);
     await page.getByRole('button', { name: 'Sign in' }).click();
     await expect(page.getByTestId('dashboard-greeting')).toContainText('Asha QA');
+
+    // The header account menu also offers Profile, Settings and Sign out.
+    await page.getByTestId('user-menu').click();
+    await expect(page.getByRole('menuitem', { name: 'My Profile' })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Settings' })).toBeVisible();
+    await page.getByTestId('menu-sign-out').click();
+    await expect(page).toHaveURL(/\/login/);
   });
 
   test('rejects wrong password with a clear error', async ({ page }) => {

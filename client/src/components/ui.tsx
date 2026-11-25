@@ -1,3 +1,4 @@
+import { SatelliteMark } from './SatelliteLoader';
 import { useEffect, useId, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import clsx from 'clsx';
 import { Loader2, X } from 'lucide-react';
@@ -92,8 +93,8 @@ export const Select = ({ children, ...p }: SelectHTMLAttributes<HTMLSelectElemen
 
 export function Spinner({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 py-10 text-sm text-slate-500" role="status">
-      <Loader2 className="h-5 w-5 animate-spin text-navy-600" aria-hidden /> {label}
+    <div className="flex items-center justify-center gap-3 py-10 text-sm text-slate-500" role="status">
+      <SatelliteMark size={44} /> {label}
     </div>
   );
 }

@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 import {
-  Bell, BookOpen, Briefcase, Building2, FileText, LayoutDashboard, LogOut, Map, Menu, MessagesSquare, Moon, Search, Settings, Sparkles, Sun, Target, User, X,
+  Bell, BookOpen, Briefcase, Building2, ChevronDown, FileText, LayoutDashboard, LogOut, Map, Menu, MessagesSquare, Moon, Search, Settings, Sparkles, Sun, Target, User, X,
 } from 'lucide-react';
 import { useAuth, useTheme } from '../lib/context';
 import { api } from '../lib/api';
@@ -64,6 +64,62 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
+/** Account menu in the header: profile, settings and sign out. */
+function UserMenu({ initials, name, email, onLogout }: { initials: string; name: string; email: string; onLogout: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const loc = useLocation();
+
+  useEffect(() => setOpen(false), [loc.pathname]);
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => !ref.current?.contains(e.target as Node) && setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const item = 'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800';
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Account menu"
+        data-testid="user-menu"
+        className="flex items-center gap-2 rounded-xl p-1 pr-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+      >
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-100 text-xs font-bold text-navy-800 dark:bg-navy-900 dark:text-navy-100">{initials}</span>
+        <span className="hidden max-w-32 truncate text-sm font-medium sm:block" data-testid="user-name">{name}</span>
+        <ChevronDown className={clsx('h-4 w-4 text-slate-400 transition-transform', open && 'rotate-180')} aria-hidden />
+      </button>
+      {open && (
+        <div role="menu" className="fade-in absolute right-0 mt-2 w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg dark:border-slate-700 dark:bg-slate-900">
+          <div className="border-b border-slate-100 px-3 py-2 dark:border-slate-800">
+            <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{name}</p>
+            {email && email !== name && <p className="truncate text-xs text-slate-500">{email}</p>}
+          </div>
+          <div className="py-1">
+            <Link role="menuitem" to="/profile" className={item}><User className="h-4 w-4" aria-hidden /> My Profile</Link>
+            <Link role="menuitem" to="/settings" className={item}><Settings className="h-4 w-4" aria-hidden /> Settings</Link>
+          </div>
+          <div className="border-t border-slate-100 pt-1 dark:border-slate-800">
+            <button role="menuitem" type="button" onClick={onLogout} className={clsx(item, 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950')} data-testid="menu-sign-out">
+              <LogOut className="h-4 w-4" aria-hidden /> Sign out
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Layout() {
   const { user, logout } = useAuth();
   const { theme, toggle } = useTheme();
@@ -97,7 +153,7 @@ export default function Layout() {
         <div className="mt-6 flex-1 overflow-y-auto">
           <SideNav />
         </div>
-        <button onClick={() => void logout()} className="mt-4 flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-700 dark:text-slate-400 dark:hover:bg-red-950">
+        <button onClick={() => void logout()} className="mt-4 flex items-center gap-3 rounded-xl border-t border-slate-200 px-3 pt-4 pb-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-slate-800 dark:text-red-400 dark:hover:bg-red-950">
           <LogOut className="h-[18px] w-[18px]" aria-hidden /> Sign out
         </button>
       </aside>
@@ -116,7 +172,7 @@ export default function Layout() {
             <div className="mt-6 flex-1 overflow-y-auto">
               <SideNav onNavigate={() => setOpen(false)} />
             </div>
-            <button onClick={() => void logout()} className="mt-4 flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-700">
+            <button onClick={() => void logout()} className="mt-4 flex items-center gap-3 rounded-xl border-t border-slate-200 px-3 pt-4 pb-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-slate-800 dark:text-red-400">
               <LogOut className="h-[18px] w-[18px]" aria-hidden /> Sign out
             </button>
           </aside>
@@ -136,10 +192,7 @@ export default function Layout() {
             <Bell className="h-5 w-5" />
             {unread > 0 && <span data-testid="unread-badge" className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">{unread > 99 ? '99+' : unread}</span>}
           </Link>
-          <Link to="/profile" className="flex items-center gap-2 rounded-xl p-1 pr-2 hover:bg-slate-100 dark:hover:bg-slate-800">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-100 text-xs font-bold text-navy-800 dark:bg-navy-900 dark:text-navy-100">{initials}</span>
-            <span className="hidden max-w-32 truncate text-sm font-medium sm:block" data-testid="user-name">{user?.profile.fullName || user?.email}</span>
-          </Link>
+          <UserMenu initials={initials} name={user?.profile.fullName || user?.email || ''} email={user?.email ?? ''} onLogout={() => void logout()} />
         </header>
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div key={loc.pathname} className="fade-in">

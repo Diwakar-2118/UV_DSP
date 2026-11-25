@@ -5,6 +5,7 @@ import './index.css';
 import { AuthProvider, ThemeProvider, ToastProvider, useAuth } from './lib/context';
 import Layout from './components/Layout';
 import { Spinner } from './components/ui';
+import { AppLoader } from './components/SatelliteLoader';
 import LoginPage from './pages/Login';
 
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -23,7 +24,7 @@ const SettingsPage = lazy(() => import('./pages/Settings'));
 function Protected() {
   const { user, loading } = useAuth();
   const loc = useLocation();
-  if (loading) return <Spinner label="Loading CareerPilot AI…" />;
+  if (loading) return <AppLoader />;
   if (!user) return <Navigate to="/login" replace state={{ from: loc.pathname }} />;
   return <Layout />;
 }
