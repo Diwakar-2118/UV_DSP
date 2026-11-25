@@ -82,11 +82,15 @@ const ROLE_RULES: [RoleCategory, RegExp][] = [
   ['Fintech QA', /\b(payments?|fintech|banking|cards?|upi|lending|wallet|acquiring|settlement)\b/i],
   ['Manual QA', /\b(manual|functional test|qa engineer|quality assurance|test engineer|software tester|qa analyst|tester)\b/i],
 ];
-const QA_TITLE = /\b(qa|quality|test|tester|testing|sdet)\b/i;
+const QA_TITLE = /\b(qa|qe|quality|test|tester|testing|sdet)\b/i;
+/** 'Quality'/'test' used in a non-QA sense, e.g. "Search Quality" ranking engineers or A/B test analysts. */
+/** Also excludes manufacturing / supply-chain quality roles, which are not software testing. */
+const NOT_QA_TITLE =
+  /(?<![a-z])(search|ranking|data|content|ad|ads|air|water|food|supplier|in ?coming|works|product|logistic|manufacturing|plant) quality\b|quality management|a\/b test|inspection|calibration|process planner|electrical testing|vehicle testing/i;
 
 /** Classify a job into role categories. Title must look like a QA/test role; the description refines it. */
 export function classifyRoles(title: string, description = ''): RoleCategory[] {
-  if (!QA_TITLE.test(title)) return [];
+  if (!QA_TITLE.test(title) || NOT_QA_TITLE.test(title)) return [];
   const roles = new Set<RoleCategory>();
   for (const [role, re] of ROLE_RULES) if (re.test(title)) roles.add(role);
   const head = description.slice(0, 3000);
@@ -101,7 +105,7 @@ export function normalizeLocations(location: string, remoteFlag = false): string
   const l = location.toLowerCase();
   const tags = new Set<string>();
   if (/bengaluru|bangalore|blr/.test(l)) tags.add('Bengaluru');
-  if (/hyderabad|hyd\b|secunderabad/.test(l)) tags.add('Hyderabad');
+  if (/hyderabad|hyd\b|secunderabad|telangana|telengana/.test(l)) tags.add('Hyderabad');
   if (remoteFlag || /remote|work from home|wfh|anywhere/.test(l)) tags.add('Remote');
   if (tags.size === 0) tags.add('Other');
   return [...tags];

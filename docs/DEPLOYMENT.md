@@ -82,7 +82,8 @@ Every integration is optional. The UI reports each one's real status under **Set
 ### Job sources
 | Variable | Source |
 |---|---|
-| `GREENHOUSE_BOARDS` | Comma-separated Greenhouse board tokens (the part after `boards.greenhouse.io/`). Default: `razorpaysoftwareprivatelimited,groww` |
+| `GREENHOUSE_BOARDS` | Comma-separated Greenhouse board tokens (the part after `boards.greenhouse.io/`). Default: `razorpaysoftwareprivatelimited,groww,hackerrank,netskope,highradius,rubrik,zscaler,okta,databricks` |
+| `SMARTRECRUITERS_COMPANIES` | SmartRecruiters company ids (the part after `jobs.smartrecruiters.com/`). Default: `BoschGroup,Experian` |
 | `LEVER_COMPANIES` | Lever company slugs (the part after `jobs.lever.co/`) |
 | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | Free key from https://developer.adzuna.com/ (India: Bengaluru & Hyderabad) |
 | `JSEARCH_API_KEY` | RapidAPI key for JSearch (LinkedIn / Indeed / Naukri postings via Google for Jobs) |

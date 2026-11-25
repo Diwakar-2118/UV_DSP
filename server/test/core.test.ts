@@ -53,6 +53,10 @@ describe('taxonomy', () => {
     expect(classifyRoles('SDET', '')).toContain('QA Automation');
     expect(classifyRoles('QA Engineer', 'payment gateway testing')).toEqual(expect.arrayContaining(['Fintech QA', 'Manual QA']));
     expect(classifyRoles('Performance Test Engineer', 'JMeter')).toContain('Performance Testing');
+    // Non-software "quality" roles are not QA
+    expect(classifyRoles('Staff Software Engineer- Search Quality')).toEqual([]);
+    expect(classifyRoles('Assistant Manager_Supplier Quality')).toEqual([]);
+    expect(classifyRoles('Senior Software Development Engineer in Test')).toContain('Manual QA');
   });
   it('extracts skills without false Java/JavaScript overlap', () => {
     const s = extractSkills('JavaScript, Playwright and Postman; ISO8583');

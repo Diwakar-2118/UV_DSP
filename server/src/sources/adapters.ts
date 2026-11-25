@@ -1,5 +1,5 @@
 import { config } from '../config.js';
-import { stripHtml } from '../lib/taxonomy.js';
+import { classifyRoles, stripHtml } from '../lib/taxonomy.js';
 import { fetchJson, type JobSourceAdapter, type RawJob } from './types.js';
 import { demoJobs } from './demo.js';
 
@@ -7,6 +7,14 @@ const decodeEntities = (s: string) =>
   s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
 
 const SEARCH_TERMS = ['QA Engineer', 'Test Engineer', 'SDET', 'Performance Test Engineer', 'API Testing'];
+
+/** India offices or remote roles open to India – the app targets Bengaluru, Hyderabad and remote. */
+const INDIA_OR_OPEN_REMOTE = /india|\bind\b|bengaluru|bangalore|hyderabad|secunderabad|pune|chennai|mumbai|gurgaon|gurugram|noida|delhi|kolkata|ahmedabad/i;
+const OPEN_REMOTE = /remote|anywhere/i;
+const OPEN_REGION = /worldwide|anywhere|global|apac|asia/i;
+const relevantLocation = (loc: string) => INDIA_OR_OPEN_REMOTE.test(loc) || (OPEN_REMOTE.test(loc) && OPEN_REGION.test(loc));
+/** Cheap title pre-filter so only QA/testing roles are fetched in full. */
+const isQaTitle = (title: string) => classifyRoles(title).length > 0;
 
 /** Remotive – public remote-jobs API (https://remotive.com/api-documentation). Attribution: links back to Remotive. */
 export const remotive: JobSourceAdapter = {
@@ -47,7 +55,7 @@ export const greenhouse: JobSourceAdapter = {
   name: 'Company career pages (Greenhouse)',
   kind: 'career_page',
   website: 'https://boards.greenhouse.io',
-  description: 'Official public Job Board API for companies hosting careers on Greenhouse. Configure boards with GREENHOUSE_BOARDS.',
+  description: 'Official public Job Board API for company career pages on Greenhouse (no key). QA roles in India / remote from HackerRank, Netskope, HighRadius, Rubrik, Zscaler, Okta, Databricks and more. Configure with GREENHOUSE_BOARDS.',
   requiresCredentials: false,
   isLive: true,
   unavailableReason: () => (config.sources.greenhouseBoards.length ? null : 'No boards configured (GREENHOUSE_BOARDS)'),
@@ -56,16 +64,25 @@ export const greenhouse: JobSourceAdapter = {
     const errors: string[] = [];
     for (const board of config.sources.greenhouseBoards) {
       try {
+        const base = `https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(board)}`;
         const [meta, data] = await Promise.all([
-          fetchJson<{ name: string }>(`https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(board)}`).catch(() => ({ name: board })),
-          fetchJson<{ jobs: any[] }>(`https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(board)}/jobs?content=true`),
+          fetchJson<{ name: string }>(base).catch(() => ({ name: board })),
+          fetchJson<{ jobs: any[] }>(`${base}/jobs`),
         ]);
-        const company = (meta.name || board).replace(/\s+(software\s+)?private\s+limited$/i, '').trim();
-        for (const j of data.jobs) {
+        const company = (meta.name || board)
+          .replace(/\s+(software\s+)?private\s+limited$/i, '')
+          .replace(/\s+(job board|careers?|jobs)$/i, '')
+          .trim();
+        // The list endpoint has no descriptions; fetch full content only for QA roles in India / open remote.
+        const wanted = data.jobs.filter((j) => isQaTitle(j.title ?? '') && relevantLocation(j.location?.name ?? ''));
+        const detailed = await Promise.all(
+          wanted.map((j) => fetchJson<any>(`${base}/jobs/${j.id}`).catch(() => j)),
+        );
+        for (const j of detailed) {
           const loc: string = j.location?.name ?? '';
           out.push({
             externalId: `${board}:${j.id}`,
-            title: j.title,
+            title: String(j.title ?? '').trim(),
             company,
             location: loc,
             isRemote: /remote/i.test(loc),
@@ -77,6 +94,59 @@ export const greenhouse: JobSourceAdapter = {
         }
       } catch (e) {
         errors.push(`${board}: ${(e as Error).message}`);
+      }
+    }
+    if (errors.length && out.length === 0) throw new Error(errors.join('; '));
+    return out;
+  },
+};
+
+/** SmartRecruiters public Posting API – official, keyless endpoint for company career pages. */
+export const smartrecruiters: JobSourceAdapter = {
+  id: 'smartrecruiters',
+  name: 'Company career pages (SmartRecruiters)',
+  kind: 'career_page',
+  website: 'https://jobs.smartrecruiters.com',
+  description: 'Official public Posting API for company career pages on SmartRecruiters (no key). India QA roles from Bosch, Experian and more. Configure with SMARTRECRUITERS_COMPANIES.',
+  requiresCredentials: false,
+  isLive: true,
+  unavailableReason: () => (config.sources.smartRecruitersCompanies.length ? null : 'No companies configured (SMARTRECRUITERS_COMPANIES)'),
+  async fetch() {
+    const out: RawJob[] = [];
+    const errors: string[] = [];
+    for (const company of config.sources.smartRecruitersCompanies) {
+      try {
+        const base = `https://api.smartrecruiters.com/v1/companies/${encodeURIComponent(company)}/postings`;
+        const list: any[] = [];
+        for (let offset = 0; offset < 1000; offset += 100) {
+          const page = await fetchJson<{ content: any[]; totalFound: number }>(`${base}?country=in&limit=100&offset=${offset}`);
+          list.push(...(page.content ?? []));
+          if (!page.content?.length || offset + 100 >= page.totalFound) break;
+        }
+        const wanted = list.filter((j) => isQaTitle(j.name ?? ''));
+        const detailed = await Promise.all(wanted.map((j) => fetchJson<any>(`${base}/${j.id}`).catch(() => j)));
+        for (const j of detailed) {
+          const loc = [j.location?.city, j.location?.region, 'India'].filter(Boolean).join(', ');
+          const s = j.jobAd?.sections ?? {};
+          const description = [s.jobDescription?.text, s.qualifications?.text, s.additionalInformation?.text]
+            .filter(Boolean)
+            .map((h: string) => stripHtml(decodeEntities(h)))
+            .join('\n\n');
+          out.push({
+            externalId: `${company}:${j.id}`,
+            title: String(j.name ?? '').trim(),
+            company: j.company?.name ?? company,
+            location: j.location?.remote ? `Remote (${loc})` : loc,
+            isRemote: !!j.location?.remote,
+            description,
+            postedAt: j.releasedDate ? new Date(j.releasedDate) : null,
+            applyUrl: j.postingUrl ?? `https://jobs.smartrecruiters.com/${company}/${j.id}`,
+            sourceSite: `${j.company?.name ?? company} careers`,
+            jobType: j.typeOfEmployment?.label ?? null,
+          });
+        }
+      } catch (e) {
+        errors.push(`${company}: ${(e as Error).message}`);
       }
     }
     if (errors.length && out.length === 0) throw new Error(errors.join('; '));
@@ -217,7 +287,7 @@ export const demo: JobSourceAdapter = {
   fetch: async () => demoJobs(),
 };
 
-export const ADAPTERS: JobSourceAdapter[] = [remotive, greenhouse, lever, adzuna, jsearch, demo];
+export const ADAPTERS: JobSourceAdapter[] = [greenhouse, smartrecruiters, lever, adzuna, jsearch, remotive, demo];
 
 /** Job boards without a public API: we only build deep-links to their own search pages (no scraping). */
 export const SEARCH_LINK_SOURCES = [

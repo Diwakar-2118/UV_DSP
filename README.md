@@ -42,7 +42,7 @@ npm run dev                             # API on :4000, web on http://localhost:
 Open http://localhost:5173 and create an account. Your QA/fintech preferences are pre-filled.
 
 With no API keys configured:
-- Jobs come from the keyless live sources (Remotive, Greenhouse company boards). Clearly-labelled **demo listings** (fictional "(Demo)" companies) appear only while no live jobs exist, and are never alerted.
+- Jobs come from keyless live sources: official company career-page APIs on Greenhouse and SmartRecruiters (HackerRank, Netskope, HighRadius, Rubrik, Zscaler, Okta, Databricks, Bosch, Experian…). No API keys needed. Clearly-labelled **demo listings** (fictional "(Demo)" companies) appear only while no live jobs exist, and are never alerted.
 - Mock-interview grading and resume analysis use the built-in offline engines.
 - Email and Telegram are reported as **Not configured**. Alerts still collect in the in-app inbox.
 
@@ -66,7 +66,7 @@ careerpilot-ai/
 ├── client/                React app (pages/, components/, lib/)
 ├── server/
 │   ├── src/db/migrations/ SQL schema (users, jobs, job_sources, notifications, interviews, resumes, study_* …)
-│   ├── src/sources/       Job-source adapters (Remotive, Greenhouse, Lever, Adzuna, JSearch, demo) + deep-link builders
+│   ├── src/sources/       Job-source adapters (Greenhouse, SmartRecruiters, Lever, Adzuna, JSearch, Remotive, demo) + deep-link builders
 │   ├── src/services/      matching, jobs, notifications, scheduler, evaluator, interviews, resume, study, companies, ai
 │   ├── src/routes/        REST API
 │   ├── src/data/          Curated prep topics, question bank, company profiles
@@ -85,6 +85,7 @@ CareerPilot **never scrapes, bypasses logins or CAPTCHAs, or ignores website ter
 |---|---|---|
 | Remotive | Public remote-jobs API (links back to Remotive per their terms) | none |
 | Greenhouse | Official public Job Board API for company career pages (`GREENHOUSE_BOARDS`) | none |
+| SmartRecruiters | Official public Posting API for company career pages (`SMARTRECRUITERS_COMPANIES`) | none |
 | Lever | Official public Postings API (`LEVER_COMPANIES`) | none |
 | Adzuna India | Official Jobs API – Bengaluru & Hyderabad coverage | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` |
 | JSearch (RapidAPI) | Licensed aggregator of Google-for-Jobs listings, incl. **LinkedIn, Indeed and Naukri** postings | `JSEARCH_API_KEY` |
