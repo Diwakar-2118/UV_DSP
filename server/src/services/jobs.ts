@@ -8,6 +8,7 @@ import {
   normalizeUrl,
   parseExperience,
 } from '../lib/taxonomy.js';
+import { ALL_IT } from '../lib/roleFamilies.js';
 import { ADAPTERS, SEARCH_LINK_SOURCES } from '../sources/adapters.js';
 import type { FetchContext, RawJob } from '../sources/types.js';
 import { scoreJob, type MatchProfile, type MatchResult } from './matching.js';
@@ -43,7 +44,7 @@ export async function syncSourceRegistry(db: Db) {
   }
 }
 
-/** Normalise raw jobs, drop non-QA roles, de-duplicate and upsert. */
+/** Normalise raw jobs, drop non-IT roles, de-duplicate and upsert. */
 export async function ingestJobs(db: Db, sourceId: string, raws: RawJob[]): Promise<IngestStats> {
   const stats: IngestStats = { fetched: raws.length, relevant: 0, inserted: 0, updated: 0, duplicates: 0, insertedIds: [] };
   const seenInBatch = new Set<string>();
@@ -51,7 +52,7 @@ export async function ingestJobs(db: Db, sourceId: string, raws: RawJob[]): Prom
     if (!r.title || !r.company) continue;
     const text = `${r.title}\n${r.description}`;
     const roles = classifyRoles(r.title, r.description);
-    if (roles.length === 0) continue; // not a QA / testing role
+    if (roles.length === 0) continue; // not an IT role (sales, HR, finance, operations…)
     stats.relevant++;
 
     const normalizedUrl = normalizeUrl(r.applyUrl);
@@ -120,25 +121,14 @@ export interface SourceRunResult {
   stats?: Omit<IngestStats, 'insertedIds'>;
 }
 
-/** Map the app's role categories to search keywords providers understand. */
-const ROLE_QUERIES: Record<string, string> = {
-  'Manual QA': 'QA Engineer',
-  'QA Automation': 'SDET',
-  'API Testing': 'API Testing',
-  'Performance Testing': 'Performance Testing',
-  'Fintech QA': 'QA Engineer',
-};
-export const rolesToQueries = (roles: string[]) => [...new Set(roles.map((r) => ROLE_QUERIES[r] ?? r))];
-
-/** Search context for the scheduled run: every user's preferred roles and locations. */
+/**
+ * Search context for the scheduled run: every IT role family, in every location users prefer.
+ * (Each user's own role preferences decide what they are alerted about – collection covers all IT jobs.)
+ */
 export async function scheduledContext(db: Db): Promise<Omit<FetchContext, 'signal'>> {
-  const rows = await db.query<{ roles: string[]; locations: string[] }>('SELECT roles, locations FROM job_preferences');
-  const roles = rolesToQueries([...new Set(rows.flatMap((r) => r.roles ?? []))]);
+  const rows = await db.query<{ locations: string[] }>('SELECT locations FROM job_preferences');
   const locations = [...new Set(rows.flatMap((r) => r.locations ?? []))];
-  return {
-    roles: roles.length ? roles : ['QA Engineer', 'SDET'],
-    location: (locations.length ? locations : ['Bengaluru', 'Hyderabad', 'Remote']).join(', '),
-  };
+  return { roles: [ALL_IT], location: (locations.length ? locations : ['Bengaluru', 'Hyderabad', 'Remote']).join(', ') };
 }
 
 /** Record a provider run in job_sources and ingest its jobs. */

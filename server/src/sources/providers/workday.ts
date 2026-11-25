@@ -1,4 +1,4 @@
-import { parseLocation } from '../../lib/roleFamilies.js';
+import { isBroadSearch, parseLocation, queryTerms } from '../../lib/roleFamilies.js';
 import { workdayCatalog, type CatalogEntry } from '../catalog.js';
 import { fetchJson } from '../http.js';
 import { inferCountry, type JobSourceAdapter, type RawJob } from '../types.js';
@@ -46,7 +46,8 @@ export const workday: JobSourceAdapter = {
     const q = parseLocation(ctx.location);
     // Narrow by city in the search text only when exactly one city was asked for; otherwise filter afterwards.
     const city = q.cities.length === 1 ? ctx.location.split(/[,;|]/).map((s) => s.trim()).find((s) => s && !/^(remote|india)$/i.test(s)) : undefined;
-    const searchText = `${primaryRole(ctx.roles)}${city ? ` ${city}` : ''}`;
+    // Broad (all IT) requests search by city only and filter locally; otherwise role keyword (+ city).
+    const searchText = isBroadSearch(ctx.roles) ? (city ?? '') : `${primaryRole(queryTerms(ctx.roles))}${city ? ` ${city}` : ''}`;
     // Sequential: Workday rate-limits per client across tenants (http.ts also enforces 1 at a time).
     for (const entry of workdayCatalog()) {
       if (ctx.signal?.aborted) break;

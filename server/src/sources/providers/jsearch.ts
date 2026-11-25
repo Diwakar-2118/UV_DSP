@@ -1,4 +1,5 @@
 import { config } from '../../config.js';
+import { queryTerms } from '../../lib/roleFamilies.js';
 import { fetchJson } from '../http.js';
 import { inferCountry, type JobSourceAdapter, type RawJob } from '../types.js';
 import { toDate } from './util.js';
@@ -39,7 +40,7 @@ export const jsearch: JobSourceAdapter = {
   unavailableReason: () => (config.sources.jsearchApiKey ? null : 'Missing JSEARCH_API_KEY'),
   async fetch(ctx) {
     const out: RawJob[] = [];
-    for (const role of (ctx.roles.length ? ctx.roles : ['QA Engineer']).slice(0, 3)) {
+    for (const role of (ctx.roles.length ? queryTerms(ctx.roles) : ['Software Engineer']).slice(0, 3)) {
       const qs = new URLSearchParams({ query: `${role} in ${ctx.location || 'India'}`, page: '1', num_pages: '1', date_posted: 'month' });
       const data = await fetchJson(`https://jsearch.p.rapidapi.com/search?${qs}`, {
         headers: { 'X-RapidAPI-Key': config.sources.jsearchApiKey, 'X-RapidAPI-Host': 'jsearch.p.rapidapi.com' },

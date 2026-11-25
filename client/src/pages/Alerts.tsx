@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Bell, CheckCheck, Clock, ExternalLink, Mail, MessageCircle, Play, Send, Trash2 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useApi, useToast } from '../lib/context';
-import { LOCATIONS, ROLE_CATEGORIES } from '../lib/types';
+import { IT_ROLES, LOCATIONS, QA_ROLES } from '../lib/types';
 import { notifyNotificationsChanged } from '../components/Layout';
-import { Badge, Button, Card, CardHeader, ChipGroup, EmptyState, ErrorBox, Field, Input, PageHeader, Select, Spinner, Tabs, timeAgo } from '../components/ui';
+import { Badge, Button, Card, CardHeader, ChipGroup, EmptyState, ErrorBox, Field, Input, PageHeader, Select, Spinner, Tabs, timeAgo, RoleChips } from '../components/ui';
 
 interface Channel { configured: boolean; verified: boolean; enabled: boolean; active: boolean; detail: string; transport?: string; verifiedAt?: string | null; chatIdSet?: boolean }
 interface SettingsResp {
@@ -194,7 +194,7 @@ export default function Alerts() {
               <Field label={`Minimum match score: ${form.min_match_score}%`}>
                 {(id) => <input id={id} type="range" min={0} max={100} step={5} value={form.min_match_score} onChange={(e) => setForm({ ...form, min_match_score: Number(e.target.value) })} className="w-full accent-navy-700" data-testid="min-score" />}
               </Field>
-              <div><p className="label">Preferred job roles</p><ChipGroup label="Alert roles" options={ROLE_CATEGORIES} value={form.roles} onChange={(roles) => setForm({ ...form, roles })} /></div>
+              <div><p className="label">Preferred job roles</p><RoleChips label="Alert roles" qa={QA_ROLES} it={IT_ROLES} value={form.roles} onChange={(roles) => setForm({ ...form, roles })} /></div>
               <div><p className="label">Preferred locations</p><ChipGroup label="Alert locations" options={LOCATIONS} value={form.locations} onChange={(locations) => setForm({ ...form, locations })} /></div>
               <div className="space-y-2">
                 <p className="label">Channels</p>

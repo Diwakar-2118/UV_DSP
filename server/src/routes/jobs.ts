@@ -5,7 +5,8 @@ import { getDb } from '../db/index.js';
 import { config } from '../config.js';
 import { assertAdmin, assertUuid, asyncH, HttpError, parse, uid } from '../lib/http.js';
 import { buildSearchLinks } from '../sources/adapters.js';
-import { getJob, ingestJobs, rolesToQueries, searchJobs } from '../services/jobs.js';
+import { getJob, ingestJobs, searchJobs } from '../services/jobs.js';
+import { ALL_IT } from '../lib/roleFamilies.js';
 import { discoverJobs } from '../services/discovery.js';
 import { runCollectionCycle } from '../services/scheduler.js';
 
@@ -64,9 +65,10 @@ router.get(
     );
     const db = await getDb();
     const prefs = await db.query<{ roles: string[]; locations: string[] }>('SELECT roles, locations FROM job_preferences WHERE user_id=$1', [uid(req)]);
-    const roles = p.roles.length ? p.roles.slice(0, 6) : rolesToQueries(prefs[0]?.roles ?? []);
+    // roles: "IT" (all IT jobs), role family names ("Backend Development") or free text ("Java Developer").
+    const roles = p.roles.length ? p.roles.slice(0, 10) : (prefs[0]?.roles ?? []);
     const location = p.location || (prefs[0]?.locations ?? []).join(', ');
-    res.json(await discoverJobs(db, uid(req), { roles: roles.length ? roles : ['QA Engineer'], location, top: p.top }));
+    res.json(await discoverJobs(db, uid(req), { roles: roles.length ? roles : [ALL_IT], location, top: p.top }));
   }),
 );
 
@@ -98,7 +100,7 @@ router.post(
         postedAt: new Date(),
       },
     ]);
-    if (!stats.relevant) throw new HttpError(422, 'Only QA / testing roles can be added (the title should mention QA, test, SDET or quality).');
+    if (!stats.relevant) throw new HttpError(422, 'Only IT roles can be added – the title should name an IT job (e.g. Software Engineer, QA Engineer, Data Analyst, DevOps Engineer).');
     if (!stats.inserted) throw new HttpError(409, 'This job is already in your list.');
     res.status(201).json({ id: stats.insertedIds[0] });
   }),

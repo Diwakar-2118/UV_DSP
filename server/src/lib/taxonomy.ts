@@ -1,6 +1,26 @@
 /** Canonical skills, role categories and industry keywords used across job parsing, matching and resume analysis. */
 
-export const ROLE_CATEGORIES = ['Manual QA', 'API Testing', 'Fintech QA', 'QA Automation', 'Performance Testing'] as const;
+export const QA_CATEGORIES = ['Manual QA', 'API Testing', 'Fintech QA', 'QA Automation', 'Performance Testing'] as const;
+export const IT_CATEGORIES = [
+  'Software Engineering',
+  'Frontend Development',
+  'Backend Development',
+  'Full Stack Development',
+  'Mobile Development',
+  'DevOps / SRE',
+  'Cloud Engineering',
+  'Data Engineering',
+  'Data Science / ML',
+  'Data Analytics',
+  'Cybersecurity',
+  'Product Management',
+  'UI/UX Design',
+  'Business Analysis',
+  'IT Support & Admin',
+  'Engineering Management',
+] as const;
+/** Every IT role family CareerPilot collects: QA/testing plus all other IT roles. */
+export const ROLE_CATEGORIES = [...QA_CATEGORIES, ...IT_CATEGORIES] as const;
 export type RoleCategory = (typeof ROLE_CATEGORIES)[number];
 
 export const PREFERRED_LOCATIONS = ['Bengaluru', 'Hyderabad', 'Remote'] as const;
@@ -48,6 +68,36 @@ export const SKILLS: Record<string, string[]> = {
   Microservices: ['microservices?'],
   Kafka: ['kafka'],
   Docker: ['docker', 'kubernetes', 'k8s'],
+  // ---- General IT ----
+  React: ['react(?:\\.?js)?', 'next\\.?js'],
+  Angular: ['angular(?:js)?'],
+  'Vue.js': ['vue(?:\\.?js)?'],
+  'HTML/CSS': ['html5?', 'css3?', 'tailwind', 'sass'],
+  'Spring Boot': ['spring boot', 'spring'],
+  Django: ['django', 'flask', 'fastapi'],
+  Go: ['golang'],
+  '.NET': ['\\.net', 'dotnet', 'asp\\.net', 'c#'],
+  'C++': ['c\\+\\+'],
+  Kotlin: ['kotlin'],
+  Swift: ['swiftui', 'swift (?:programming|language|developer)'],
+  Flutter: ['flutter', 'dart'],
+  'React Native': ['react native'],
+  AWS: ['aws', 'amazon web services', 'ec2', 'lambda', 's3'],
+  Azure: ['azure'],
+  GCP: ['gcp', 'google cloud'],
+  Terraform: ['terraform', 'ansible', 'cloudformation'],
+  Linux: ['linux', 'unix', 'shell scripting', 'bash'],
+  Spark: ['spark', 'pyspark', 'databricks', 'hadoop'],
+  Airflow: ['airflow', 'dbt'],
+  Snowflake: ['snowflake', 'bigquery', 'redshift'],
+  'Power BI': ['power ?bi', 'tableau', 'looker'],
+  'Machine Learning': ['machine learning', 'deep learning', 'tensorflow', 'pytorch', 'scikit-learn', 'llms?', 'nlp'],
+  MongoDB: ['mongodb', 'nosql', 'dynamodb', 'cassandra'],
+  Redis: ['redis'],
+  GraphQL: ['graphql'],
+  Figma: ['figma', 'sketch', 'adobe xd'],
+  Networking: ['tcp/ip', 'ccna', 'ccnp', 'network security'],
+  'Security Tools': ['siem', 'splunk', 'owasp', 'burp suite', 'vapt', 'penetration testing'],
 };
 
 const compiled: [string, RegExp][] = Object.entries(SKILLS).map(([canon, alts]) => [
@@ -88,9 +138,32 @@ const QA_TITLE = /\b(qa|qe|quality|test|tester|testing|sdet)\b/i;
 const NOT_QA_TITLE =
   /(?<![a-z])(search|ranking|data|content|ad|ads|air|water|food|supplier|in ?coming|works|product|logistic|manufacturing|plant) quality\b|quality management|a\/b test|inspection|calibration|process planner|electrical testing|vehicle testing/i;
 
-/** Classify a job into role categories. Title must look like a QA/test role; the description refines it. */
-export function classifyRoles(title: string, description = ''): RoleCategory[] {
-  if (!QA_TITLE.test(title) || NOT_QA_TITLE.test(title)) return [];
+/** Title rules for non-QA IT roles. A job belongs to every family whose rule matches its title. */
+export const IT_ROLE_RULES: [RoleCategory, RegExp][] = [
+  ['Frontend Development', /\b(front[- ]?end|ui developer|ui engineer|react(\.?js)? (developer|engineer)|angular|vue(\.?js)?|web developer)\b/i],
+  ['Backend Development', /\b(back[- ]?end|java (developer|engineer)|python (developer|engineer)|golang|go (developer|engineer)|node(\.?js)? (developer|engineer)|\.net (developer|engineer)|dotnet|api developer|server[- ]side)\b/i],
+  ['Full Stack Development', /\bfull[- ]?stack\b/i],
+  ['Mobile Development', /\b(android|ios|mobile (app )?(developer|engineer|development)|flutter|react native|swift developer|kotlin developer)\b/i],
+  ['DevOps / SRE', /\b(devops|devsecops|site reliability|sre|platform engineer|infrastructure engineer|build (and|&) release|release engineer|mlops)\b/i],
+  ['Cloud Engineering', /\b(cloud (engineer|architect|developer|consultant|specialist|operations)|aws (engineer|architect|developer)|azure (engineer|architect|developer)|gcp (engineer|architect))\b/i],
+  ['Data Engineering', /\b(data engineer(ing)?|etl|big data|data platform|analytics engineer|data warehouse|data architect)\b/i],
+  ['Data Science / ML', /\b(data scien(ce|tist)|machine learning|ml engineer|ml scientist|ai engineer|ai\/ml|ml\/ai|deep learning|nlp|computer vision|applied scientist|research scientist|llm|generative ai|genai)\b/i],
+  ['Data Analytics', /\b(data analyst|business intelligence|bi (developer|analyst|engineer)|analytics (engineer|analyst)|reporting analyst|power bi|tableau)\b/i],
+  ['Cybersecurity', /\b(security (engineer|analyst|architect|specialist|consultant)|cyber ?security|infosec|soc analyst|soc engineer|penetration|pentest|appsec|application security|siem|secops|iam engineer|grc analyst)\b/i],
+  ['Product Management', /\b(product manager|product owner|technical program manager|tpm|group product manager)\b/i],
+  ['UI/UX Design', /\b(ui\/ux|ux\/ui|ux designer|ui designer|product designer|interaction designer|ux researcher|user researcher|visual designer)\b/i],
+  ['Business Analysis', /\b(business analyst|systems analyst|functional consultant|it business analyst)\b/i],
+  ['IT Support & Admin', /\b(it support|help ?desk|service desk|technical support engineer|desktop support|system administrator|systems administrator|sysadmin|network (engineer|administrator)|database administrator|dba|it administrator|it engineer|noc engineer)\b/i],
+  ['Engineering Management', /\b(engineering manager|head of engineering|vp,? engineering|director,? (of )?engineering|tech(nical)? lead|software architect|solutions? architect|principal architect|cto)\b/i],
+  ['Software Engineering', /\b(software (engineer|developer|development engineer)|sde|swe|developer|programmer|member of technical staff|mts|application (developer|engineer)|engineer,? software|software dev|coder|firmware|embedded software)\b/i],
+];
+
+const isQaTitle = (title: string) => QA_TITLE.test(title) && !NOT_QA_TITLE.test(title);
+/** Non-IT roles whose titles contain words like "developer" or "engineer" (e.g. Business Developer, Sales Engineer). */
+const NON_TECH_TITLE = /(business develop\w*|sales|pre-?sales|marketing|recruit\w*|talent acquisition|account (manager|executive)|customer success)/i;
+
+/** QA categories for a QA/test title; the description refines them. */
+function classifyQa(title: string, description: string): RoleCategory[] {
   const roles = new Set<RoleCategory>();
   for (const [role, re] of ROLE_RULES) if (re.test(title)) roles.add(role);
   const head = description.slice(0, 3000);
@@ -100,6 +173,22 @@ export function classifyRoles(title: string, description = ''): RoleCategory[] {
   if (roles.size === 0) roles.add('Manual QA');
   return [...roles];
 }
+
+/**
+ * Classify a job into role families from its title (the description refines QA roles).
+ * Returns [] for non-IT jobs (sales, HR, finance, operations…), which are not collected.
+ */
+export function classifyRoles(title: string, description = ''): RoleCategory[] {
+  const roles = new Set<RoleCategory>(isQaTitle(title) ? classifyQa(title, description) : []);
+  for (const [role, re] of IT_ROLE_RULES) {
+    // A QA title like "Software Development Engineer in Test" is QA, not generic software engineering.
+    if (role === 'Software Engineering' && (roles.size || NON_TECH_TITLE.test(title))) continue;
+    if (re.test(title)) roles.add(role);
+  }
+  return [...roles];
+}
+
+export const isQaRole = (r: string) => (QA_CATEGORIES as readonly string[]).includes(r);
 
 export function normalizeLocations(location: string, remoteFlag = false): string[] {
   const l = location.toLowerCase();

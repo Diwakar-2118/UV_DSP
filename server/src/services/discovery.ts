@@ -4,7 +4,7 @@
  * Results are cached per user for 15 minutes and also stored, so they appear in Find Jobs and alerts.
  */
 import type { Db } from '../db/index.js';
-import { expandRoles, matchesLocation, matchesRoleFamily, parseLocation } from '../lib/roleFamilies.js';
+import { matchesLocation, matchesRoleFamily, parseLocation } from '../lib/roleFamilies.js';
 import { classifyRoles, extractSkills, inferIndustry, normalizeLocations, normalizeUrl, parseExperience } from '../lib/taxonomy.js';
 import { buildSearchLinks } from '../sources/adapters.js';
 import { careerLinks } from '../sources/catalog.js';
@@ -57,9 +57,9 @@ export function toCandidates(runs: ProviderRun[], fetchedAt = new Date()): Candi
 }
 
 export function filterCandidates(cands: Candidate[], roles: string[], location: string): Candidate[] {
-  const roleRes = expandRoles(roles);
   const loc = parseLocation(location);
-  return cands.filter((c) => matchesRoleFamily(c.job.title, roleRes.length ? roleRes : []) && matchesLocation(c.job, loc));
+  // Role names go through matchesRoleFamily as-is so "IT" and family names ("Backend Development") work.
+  return cands.filter((c) => matchesRoleFamily(c.job.title, roles) && matchesLocation(c.job, loc));
 }
 
 // ---------------- ranking ----------------

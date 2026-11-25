@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { ExternalLink, Filter, RefreshCw, Search, SlidersHorizontal, X } from 'lucide-react';
 import { api } from '../lib/api';
 import { useApi, useAuth, useToast } from '../lib/context';
-import { LOCATIONS, ROLE_CATEGORIES, type Job, type JobSearchResponse } from '../lib/types';
+import { IT_ROLES, LOCATIONS, QA_ROLES, ROLE_KEYWORDS, type Job, type JobSearchResponse } from '../lib/types';
 import JobCard from '../components/JobCard';
-import { Button, Card, ChipGroup, EmptyState, ErrorBox, Field, Input, PageHeader, Select, Spinner } from '../components/ui';
+import { Button, Card, ChipGroup, RoleChips, EmptyState, ErrorBox, Field, Input, PageHeader, Select, Spinner } from '../components/ui';
 
 export interface JobFilters {
   q: string;
@@ -23,7 +23,8 @@ export interface JobFilters {
   savedOnly: boolean;
 }
 
-export const defaultFilters = (roles: string[] = [...ROLE_CATEGORIES], locations: string[] = [...LOCATIONS], min = 3, max = 5): JobFilters => ({
+/** No roles selected = all IT roles. */
+export const defaultFilters = (roles: string[] = [], locations: string[] = [...LOCATIONS], min = 3, max = 5): JobFilters => ({
   q: '', roles, locations, expMin: String(min), expMax: String(max), company: '', industry: '', skills: '', salaryMin: '', jobType: '',
   postedWithinDays: '30', minMatch: '', sort: 'latest', savedOnly: false,
 });
@@ -41,7 +42,7 @@ export function useJobSearch(filters: JobFilters, page: number) {
 }
 
 function ExternalBoards({ filters }: { filters: JobFilters }) {
-  const keywords = filters.q || (filters.roles.length === 1 ? `${filters.roles[0]} Engineer`.replace('QA Engineer Engineer', 'QA Engineer') : 'QA Engineer');
+  const keywords = filters.q || (filters.roles.length === 1 ? ROLE_KEYWORDS[filters.roles[0]] ?? filters.roles[0] : 'Software Engineer');
   const [loc, setLoc] = useState<string>(filters.locations[0] ?? 'Bengaluru');
   const { data } = useApi(() => api.get<{ links: { id: string; name: string; url: string }[] }>('/jobs/search-links', { keywords, location: loc, days: filters.postedWithinDays || 7, expMin: filters.expMin || 3 }), [keywords, loc, filters.postedWithinDays, filters.expMin]);
   return (
@@ -67,7 +68,7 @@ export function FiltersPanel({ f, set, onReset }: { f: JobFilters; set: (p: Part
     <div className="space-y-4">
       <div>
         <p className="label">Job roles</p>
-        <ChipGroup label="Job roles" options={ROLE_CATEGORIES} value={f.roles} onChange={(roles) => set({ roles })} />
+        <RoleChips label="Job roles" qa={QA_ROLES} it={IT_ROLES} value={f.roles} onChange={(roles) => set({ roles })} emptyHint="Showing all IT roles – pick any to narrow down." />
       </div>
       <div>
         <p className="label">Locations</p>
@@ -137,7 +138,8 @@ export default function FindJobs({ preset }: { preset?: Partial<JobFilters> }) {
   const { user } = useAuth();
   const toast = useToast();
   const base = useMemo(
-    () => ({ ...defaultFilters(user?.preferences.roles, user?.preferences.locations, user?.preferences.minExperience, user?.preferences.maxExperience), ...preset }),
+    // Find Jobs shows every IT role by default; your preferred roles drive AI Job Matching and alerts.
+    () => ({ ...defaultFilters([], user?.preferences.locations, user?.preferences.minExperience, user?.preferences.maxExperience), ...preset }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [user?.id],
   );
@@ -179,7 +181,7 @@ export default function FindJobs({ preset }: { preset?: Partial<JobFilters> }) {
     <div>
       <PageHeader
         title={preset?.sort === 'match' ? 'AI Job Matching' : 'Find Jobs'}
-        subtitle={preset?.sort === 'match' ? 'Jobs ranked by a transparent compatibility score: skills 40% · experience 25% · industry 20% · location 15%.' : 'QA & fintech roles from authorised sources, matched to your profile.'}
+        subtitle={preset?.sort === 'match' ? 'Jobs ranked by a transparent compatibility score: skills 40% · experience 25% · industry 20% · location 15%.' : 'All IT jobs – QA, development, data, DevOps, cloud, security and more – from authorised sources, matched to your profile.'}
         actions={
           <Button variant="secondary" onClick={refresh} loading={refreshing} data-testid="refresh-jobs">
             <RefreshCw className="h-4 w-4" /> Fetch latest jobs
@@ -215,7 +217,7 @@ export default function FindJobs({ preset }: { preset?: Partial<JobFilters> }) {
 
           {data && !data.liveAvailable && (
             <div className="rounded-xl border border-navy-200 bg-navy-50 px-4 py-3 text-sm text-navy-900 dark:border-navy-800 dark:bg-navy-950 dark:text-navy-100" data-testid="no-live-banner">
-              <strong>No jobs collected yet.</strong> Click “Fetch latest jobs” to pull live QA roles from company career pages (Greenhouse, Lever, Ashby, SmartRecruiters, Workday, Amazon) and the job APIs enabled in Settings.
+              <strong>No jobs collected yet.</strong> Click “Fetch latest jobs” to pull live IT jobs from company career pages (Greenhouse, Lever, Ashby, SmartRecruiters, Workday, Amazon) and the job APIs enabled in Settings.
             </div>
           )}
 

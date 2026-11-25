@@ -1,4 +1,33 @@
-export const ROLE_CATEGORIES = ['Manual QA', 'API Testing', 'Fintech QA', 'QA Automation', 'Performance Testing'] as const;
+export const QA_ROLES = ['Manual QA', 'API Testing', 'Fintech QA', 'QA Automation', 'Performance Testing'] as const;
+export const IT_ROLES = [
+  'Software Engineering',
+  'Frontend Development',
+  'Backend Development',
+  'Full Stack Development',
+  'Mobile Development',
+  'DevOps / SRE',
+  'Cloud Engineering',
+  'Data Engineering',
+  'Data Science / ML',
+  'Data Analytics',
+  'Cybersecurity',
+  'Product Management',
+  'UI/UX Design',
+  'Business Analysis',
+  'IT Support & Admin',
+  'Engineering Management',
+] as const;
+/** All IT role families (QA & testing plus every other IT role). */
+export const ROLE_CATEGORIES = [...QA_ROLES, ...IT_ROLES] as const;
+/** Search keyword for each role family (used for job-board deep links). */
+export const ROLE_KEYWORDS: Record<string, string> = {
+  'Manual QA': 'QA Engineer', 'API Testing': 'API Test Engineer', 'Fintech QA': 'QA Engineer', 'QA Automation': 'SDET', 'Performance Testing': 'Performance Test Engineer',
+  'Software Engineering': 'Software Engineer', 'Frontend Development': 'Frontend Developer', 'Backend Development': 'Backend Developer',
+  'Full Stack Development': 'Full Stack Developer', 'Mobile Development': 'Mobile Developer', 'DevOps / SRE': 'DevOps Engineer',
+  'Cloud Engineering': 'Cloud Engineer', 'Data Engineering': 'Data Engineer', 'Data Science / ML': 'Data Scientist', 'Data Analytics': 'Data Analyst',
+  Cybersecurity: 'Security Engineer', 'Product Management': 'Product Manager', 'UI/UX Design': 'UX Designer', 'Business Analysis': 'Business Analyst',
+  'IT Support & Admin': 'IT Support', 'Engineering Management': 'Engineering Manager',
+};
 export const LOCATIONS = ['Bengaluru', 'Hyderabad', 'Remote'] as const;
 export const APPLICATION_STATUSES = ['Interested', 'Applied', 'Resume Shortlisted', 'Interview Scheduled', 'Technical Round', 'HR Round', 'Selected', 'Rejected'] as const;
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];

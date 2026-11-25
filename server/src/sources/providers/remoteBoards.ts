@@ -2,6 +2,7 @@
  * Keyless remote-job boards: Remotive, Arbeitnow, Himalayas, Jobicy.
  * Each is a separate provider; they share this module because each is only a parser plus one GET.
  */
+import { isBroadSearch, queryTerms } from '../../lib/roleFamilies.js';
 import { fetchJson } from '../http.js';
 import { inferCountry, type JobSourceAdapter, type RawJob } from '../types.js';
 import { htmlToText, primaryRole, toDate } from './util.js';
@@ -42,7 +43,7 @@ export const remotive: JobSourceAdapter = {
   minIntervalMinutes: 360,
   unavailableReason: () => null,
   async fetch(ctx) {
-    return parseRemotive(await fetchJson(`https://remotive.com/api/remote-jobs?search=${encodeURIComponent(primaryRole(ctx.roles))}&limit=100`, { signal: ctx.signal }));
+    return parseRemotive(await fetchJson(`https://remotive.com/api/remote-jobs?search=${encodeURIComponent(primaryRole(queryTerms(ctx.roles)))}&limit=100`, { signal: ctx.signal }));
   },
 };
 
@@ -113,7 +114,7 @@ export const himalayas: JobSourceAdapter = {
   minIntervalMinutes: 60,
   unavailableReason: () => null,
   async fetch(ctx) {
-    return parseHimalayas(await fetchJson(`https://himalayas.app/jobs/api/search?q=${encodeURIComponent(primaryRole(ctx.roles))}`, { signal: ctx.signal }));
+    return parseHimalayas(await fetchJson(isBroadSearch(ctx.roles) ? 'https://himalayas.app/jobs/api?limit=100' : `https://himalayas.app/jobs/api/search?q=${encodeURIComponent(primaryRole(queryTerms(ctx.roles)))}`, { signal: ctx.signal }));
   },
 };
 
@@ -150,7 +151,9 @@ export const jobicy: JobSourceAdapter = {
   minIntervalMinutes: 60,
   unavailableReason: () => null,
   async fetch(ctx) {
-    const tag = primaryRole(ctx.roles).toLowerCase().includes('qa') || /test|sdet/i.test(primaryRole(ctx.roles)) ? 'qa' : primaryRole(ctx.roles);
-    return parseJobicy(await fetchJson(`https://jobicy.com/api/v2/remote-jobs?count=50&tag=${encodeURIComponent(tag)}`, { signal: ctx.signal }));
+    // Broad requests take the latest remote jobs; otherwise filter by the primary role keyword.
+    const term = primaryRole(queryTerms(ctx.roles));
+    const tag = isBroadSearch(ctx.roles) ? '' : /\bqa\b|test|sdet/i.test(term) ? 'qa' : term;
+    return parseJobicy(await fetchJson(`https://jobicy.com/api/v2/remote-jobs?count=50${tag ? `&tag=${encodeURIComponent(tag)}` : ''}`, { signal: ctx.signal }));
   },
 };

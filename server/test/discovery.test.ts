@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createDb, migrate, setDb, type Db } from '../src/db/index.js';
-import { expandRoles, matchesLocation, matchesRoleFamily, parseLocation } from '../src/lib/roleFamilies.js';
+import { expandRoles, isBroadSearch, matchesLocation, matchesRoleFamily, parseLocation, queryTerms } from '../src/lib/roleFamilies.js';
 import { careerLinks, catalogFor, COMPANY_CATALOG } from '../src/sources/catalog.js';
 import { toNormalized, type JobSourceAdapter, type RawJob } from '../src/sources/types.js';
 import { clearDiscoveryCache, dedupe, discoverJobs, filterCandidates, rankCandidates, titleSimilarity, type Candidate } from '../src/services/discovery.js';
@@ -32,6 +32,17 @@ describe('role families', () => {
     expect(matchesRoleFamily('Data Engineer', ['Data Engineer'])).toBe(true);
     expect(matchesRoleFamily('Anything', [])).toBe(true);
     expect(expandRoles(['QA Engineer', 'SDET']).length).toBeGreaterThan(5);
+  });
+  it('"IT" matches any IT job; family names match their family', () => {
+    expect(matchesRoleFamily('Senior Data Engineer', ['IT'])).toBe(true);
+    expect(matchesRoleFamily('Android Developer', ['IT'])).toBe(true);
+    expect(matchesRoleFamily('Relationship Manager', ['IT'])).toBe(false);
+    expect(matchesRoleFamily('Senior Frontend Developer (React)', ['Frontend Development'])).toBe(true);
+    expect(matchesRoleFamily('Senior Frontend Developer (React)', ['Data Engineering'])).toBe(false);
+    expect(matchesRoleFamily('Java Developer', ['Java Developer'])).toBe(true);
+    expect(queryTerms(['Backend Development', 'IT'])).toEqual(expect.arrayContaining(['Backend Developer', 'Software Engineer', 'QA Engineer']));
+    expect(isBroadSearch(['IT'])).toBe(true);
+    expect(isBroadSearch(['QA Engineer'])).toBe(false);
   });
   it('rejects non-software QA titles', () => {
     expect(matchesRoleFamily('AML QA Specialist, Swedish, Account Compliance Quality', ['QA Engineer'])).toBe(false);
@@ -77,6 +88,17 @@ describe('merge, dedupe, filter, rank', () => {
       'Hyderabad, Remote',
     );
     expect(out.map((c) => c.raw.externalId)).toEqual(['1', '4']);
+  });
+
+  it('"IT" keeps every IT job in the location and drops non-IT jobs', () => {
+    const out = filterCandidates(
+      [cand({ externalId: 'qa' }), cand({ externalId: 'be', title: 'Backend Engineer' }), cand({ externalId: 'ds', title: 'Data Scientist' }), cand({ externalId: 'rm', title: 'Relationship Manager' }), cand({ externalId: 'pune', title: 'DevOps Engineer', location: 'Pune' })],
+      ['IT'],
+      'Hyderabad',
+    );
+    expect(out.map((c) => c.raw.externalId)).toEqual(['qa', 'be', 'ds']);
+    const fam = filterCandidates([cand({ externalId: 'be', title: 'Backend Engineer' }), cand({ externalId: 'qa' })], ['Backend Development'], 'Hyderabad');
+    expect(fam.map((c) => c.raw.externalId)).toEqual(['be']);
   });
 
   it('title similarity favours closer titles', () => {

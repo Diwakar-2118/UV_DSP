@@ -1,3 +1,4 @@
+import { queryTerms } from '../../lib/roleFamilies.js';
 import { fetchJson } from '../http.js';
 import { inferCountry, type JobSourceAdapter, type RawJob } from '../types.js';
 import { htmlToText, toDate } from './util.js';
@@ -34,7 +35,7 @@ export const jooble: JobSourceAdapter = {
   unavailableReason: () => (key() ? null : 'Missing JOOBLE_API_KEY'),
   async fetch(ctx) {
     const out: RawJob[] = [];
-    for (const keywords of (ctx.roles.length ? ctx.roles : ['QA Engineer']).slice(0, 4)) {
+    for (const keywords of (ctx.roles.length ? queryTerms(ctx.roles) : ['Software Engineer']).slice(0, 4)) {
       const data = await fetchJson(`https://jooble.org/api/${encodeURIComponent(key())}`, { json: { keywords, location: ctx.location }, signal: ctx.signal });
       out.push(...parseJooble(data));
     }

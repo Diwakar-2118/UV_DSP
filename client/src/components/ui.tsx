@@ -196,6 +196,23 @@ export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: readon
 }
 
 /** Toggle chips for multi-select filters. */
+/** Role-family chips grouped into "QA & Testing" and "Other IT roles". No selection means all IT roles. */
+export function RoleChips({ label, value, onChange, qa, it, emptyHint }: { label: string; value: string[]; onChange: (v: string[]) => void; qa: readonly string[]; it: readonly string[]; emptyHint?: string }) {
+  return (
+    <div role="group" aria-label={label} className="space-y-2">
+      <div>
+        <p className="mb-1 text-[11px] font-medium text-slate-500">QA &amp; Testing</p>
+        <ChipGroup options={qa} value={value} onChange={onChange} />
+      </div>
+      <div>
+        <p className="mb-1 text-[11px] font-medium text-slate-500">Other IT roles</p>
+        <ChipGroup options={it} value={value} onChange={onChange} />
+      </div>
+      {emptyHint && value.length === 0 && <p className="text-xs text-slate-500">{emptyHint}</p>}
+    </div>
+  );
+}
+
 export function ChipGroup({ options, value, onChange, label }: { options: readonly string[]; value: string[]; onChange: (v: string[]) => void; label?: string }) {
   return (
     <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">

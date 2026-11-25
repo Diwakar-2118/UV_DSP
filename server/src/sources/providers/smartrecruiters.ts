@@ -1,4 +1,4 @@
-import { parseLocation } from '../../lib/roleFamilies.js';
+import { isBroadSearch, parseLocation, queryTerms } from '../../lib/roleFamilies.js';
 import { catalogFor } from '../catalog.js';
 import { fetchJson } from '../http.js';
 import { type JobSourceAdapter, type RawJob } from '../types.js';
@@ -6,6 +6,7 @@ import { preFilter } from './greenhouse.js';
 import { htmlToText, toDate } from './util.js';
 
 const API = 'https://api.smartrecruiters.com/v1/companies';
+const MAX_DETAILS = 40;
 const srLocation = (j: any) => [j.location?.city, j.location?.region, j.location?.country === 'in' ? 'India' : j.location?.country?.toUpperCase()].filter(Boolean).join(', ');
 
 /** Parse SmartRecruiters posting documents (list items or full postings with jobAd sections). */
@@ -50,15 +51,26 @@ export const smartrecruiters: JobSourceAdapter = {
         try {
           const base = `${API}/${encodeURIComponent(c.id!)}/postings`;
           const seen = new Map<string, any>();
-          // One keyword search per role, filtered to the user's country when known.
-          for (const role of ctx.roles.length ? ctx.roles : ['QA']) {
-            const qs = new URLSearchParams({ q: role, limit: '100', ...(country ? { country } : {}) });
-            const page = await fetchJson<{ content: any[] }>(`${base}?${qs}`, { signal: ctx.signal });
-            for (const j of page.content ?? []) seen.set(j.id, j);
+          if (isBroadSearch(ctx.roles) || !ctx.roles.length) {
+            // Many role families: list the country's postings (paginated) and filter locally.
+            for (let offset = 0; offset < 600; offset += 100) {
+              const qs = new URLSearchParams({ limit: '100', offset: String(offset), ...(country ? { country } : {}) });
+              const page = await fetchJson<{ content: any[]; totalFound: number }>(`${base}?${qs}`, { signal: ctx.signal });
+              for (const j of page.content ?? []) seen.set(j.id, j);
+              if (!page.content?.length || offset + 100 >= page.totalFound) break;
+            }
+          } else {
+            // One keyword search per role, filtered to the user's country when known.
+            for (const q of queryTerms(ctx.roles)) {
+              const qs = new URLSearchParams({ q, limit: '100', ...(country ? { country } : {}) });
+              const page = await fetchJson<{ content: any[] }>(`${base}?${qs}`, { signal: ctx.signal });
+              for (const j of page.content ?? []) seen.set(j.id, j);
+            }
           }
           const wanted = preFilter([...seen.values()], ctx, (j) => j.name ?? '', srLocation, (j) => !!j.location?.remote);
-          const full = await Promise.all(wanted.map((j) => fetchJson<any>(`${base}/${j.id}`, { signal: ctx.signal }).catch(() => j)));
-          out.push(...parseSmartRecruiters(full, c.id!));
+          // Full descriptions for the first matches; the rest keep their list data.
+          const full = await Promise.all(wanted.slice(0, MAX_DETAILS).map((j) => fetchJson<any>(`${base}/${j.id}`, { signal: ctx.signal }).catch(() => j)));
+          out.push(...parseSmartRecruiters([...full, ...wanted.slice(MAX_DETAILS)], c.id!));
         } catch (e) {
           errors.push(`${c.id}: ${(e as Error).message}`);
         }

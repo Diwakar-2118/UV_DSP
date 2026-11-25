@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { FileText } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth, useToast } from '../lib/context';
-import { LOCATIONS, ROLE_CATEGORIES, type User } from '../lib/types';
-import { Button, Card, CardHeader, ChipGroup, Field, Input, PageHeader, TagInput, Textarea } from '../components/ui';
+import { IT_ROLES, LOCATIONS, QA_ROLES, type User } from '../lib/types';
+import { Button, Card, CardHeader, ChipGroup, Field, Input, PageHeader, TagInput, Textarea, RoleChips } from '../components/ui';
 
 export default function Profile() {
   const { user, setUser } = useAuth();
@@ -66,9 +66,9 @@ export default function Profile() {
       </Card>
 
       <Card>
-        <CardHeader title="Job preferences" subtitle="Pre-filled for QA / fintech roles in Bengaluru, Hyderabad and Remote with 3–5 years' experience" />
+        <CardHeader title="Job preferences" subtitle="Choose any IT roles – QA, development, data, DevOps, cloud, security and more. Used for AI Job Matching and alerts." />
         <div className="space-y-5 p-5">
-          <div><p className="label">Preferred job roles</p><ChipGroup label="Preferred roles" options={ROLE_CATEGORIES} value={pr.roles} onChange={(roles) => setPr({ ...pr, roles })} /></div>
+          <div><p className="label">Preferred job roles</p><RoleChips label="Preferred roles" qa={QA_ROLES} it={IT_ROLES} value={pr.roles} onChange={(roles) => setPr({ ...pr, roles })} /></div>
           <div><p className="label">Preferred locations</p><ChipGroup label="Preferred locations" options={[...LOCATIONS, ...extraLocations]} value={pr.locations} onChange={(locations) => setPr({ ...pr, locations })} /></div>
           <div className="grid gap-4 sm:grid-cols-3">
             <Field label="Min experience">{(id) => <Input id={id} type="number" min={0} max={40} value={pr.minExperience} onChange={(e) => setPr({ ...pr, minExperience: Number(e.target.value) })} data-testid="pref-min" />}</Field>

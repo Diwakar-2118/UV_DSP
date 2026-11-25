@@ -2,7 +2,7 @@
 
 **Find Opportunities. Prepare Smarter. Get Hired.**
 
-CareerPilot AI is a full-stack AI career assistant for QA engineers (manual, API, fintech, automation and performance testing) looking for roles in **Bengaluru, Hyderabad and Remote**. It discovers jobs from authorised sources, scores them against your profile with a transparent formula, sends daily alerts, runs AI mock interviews, analyses resumes and tracks applications.
+CareerPilot AI is a full-stack AI career assistant for **all IT jobs**: QA and testing (manual, API, fintech, automation, performance), software engineering, frontend, backend, full stack, mobile, DevOps/SRE, cloud, data engineering, data science/ML, analytics, cybersecurity, product, UI/UX, business analysis, IT support and engineering management, in **Bengaluru, Hyderabad and Remote** (any location can be searched). It discovers jobs from authorised sources, scores them against your profile with a transparent formula, sends daily alerts, runs AI mock interviews, analyses resumes and tracks applications.
 
 | Area | What it does |
 |---|---|
@@ -87,7 +87,8 @@ CareerPilot collects jobs **only from official, public or licensed sources**. It
 - Companies for the ATS providers come from the **company catalog**, [`server/src/sources/catalog.ts`](server/src/sources/catalog.ts). Companies without a public API are listed there as deep links to their own careers search.
 - [`providerRunner.ts`](server/src/services/providerRunner.ts) runs providers **concurrently** within a **40 s budget**. Each request times out at about 10 s, uses a descriptive User-Agent, is limited per host (Workday strictly one at a time), and is retried once on HTTP 429. A provider with a missing key is skipped, and a failing or slow provider never fails the run; partial results are kept. Each provider's minimum interval between live calls (per its terms or quota) is enforced with a result cache.
 - [`discovery.ts`](server/src/services/discovery.ts) normalises every job to `id, title, company, location, remote, country, url, source, posted_date, salary, description, fetched_at`. It then de-duplicates by canonical URL, else by normalised company + title + location, and filters by **role family** (title keywords and synonyms) and **location** (city aliases, country, remote roles open to India). Finally it ranks against your profile: 85% compatibility (skills 40 / experience 25 / industry 20 / location 15) plus 15% title similarity. Each job lists **why it fits** (matched skills from your profile) and **missing skills**; skills are never invented.
-- **Endpoint:** `GET /api/jobs/discover?roles=QA%20Engineer,SDET&location=Hyderabad&top=20`. It defaults to the roles and locations in your profile, is cached per user for 15 minutes, and stores matches so they also appear in Find Jobs and alerts. The scheduled run (Vercel Cron, daily) uses everyone's saved preferences.
+- **Role families:** 21 IT families in [`taxonomy.ts`](server/src/lib/taxonomy.ts), classified from the job title. Non-IT jobs (sales, HR, finance, operations) are never collected. `roles` can be `IT` (every IT job), a family name (`Backend Development`) or free text (`Java Developer`).
+- **Endpoint:** `GET /api/jobs/discover?roles=IT&location=Hyderabad&top=20` (or e.g. `roles=QA Engineer,SDET`). It defaults to the roles and locations in your profile, is cached per user for 15 minutes, and stores matches so they also appear in Find Jobs and alerts. The scheduled run (Vercel Cron, daily) collects **all IT roles** in every location users prefer; each user's role preferences decide their matches and alerts.
 - **Add a job yourself:** `POST /api/jobs/import` with `{ title, company, location, url?, text }`. The link is stored and **never fetched**.
 
 ### Sources

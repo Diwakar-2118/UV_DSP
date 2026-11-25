@@ -5,6 +5,8 @@ import { inferCountry, type FetchContext, type JobSourceAdapter, type RawJob } f
 import { htmlToText, toDate } from './util.js';
 
 const API = 'https://boards-api.greenhouse.io/v1/boards';
+/** Full descriptions are fetched for at most this many matching jobs per board (the rest keep list data). */
+const MAX_DETAILS = 40;
 
 export const cleanCompany = (name: string) =>
   name.replace(/\s+(software\s+)?private\s+limited$/i, '').replace(/\s+(job board|careers?|jobs)$/i, '').trim();
@@ -58,8 +60,8 @@ export const greenhouse: JobSourceAdapter = {
           // (Cheaper and politer than ?content=true, which returns every description on large boards.)
           const list = await fetchJson<{ jobs: any[] }>(`${API}/${encodeURIComponent(c.id!)}/jobs`, { signal: ctx.signal });
           const wanted = preFilter(list.jobs, ctx, (j) => j.title ?? '', (j) => j.location?.name ?? '');
-          const full = await Promise.all(wanted.map((j) => fetchJson<any>(`${API}/${encodeURIComponent(c.id!)}/jobs/${j.id}`, { signal: ctx.signal }).catch(() => j)));
-          out.push(...parseGreenhouse(full, c.id!, c.company));
+          const full = await Promise.all(wanted.slice(0, MAX_DETAILS).map((j) => fetchJson<any>(`${API}/${encodeURIComponent(c.id!)}/jobs/${j.id}`, { signal: ctx.signal }).catch(() => j)));
+          out.push(...parseGreenhouse([...full, ...wanted.slice(MAX_DETAILS)], c.id!, c.company));
         } catch (e) {
           errors.push(`${c.id}: ${(e as Error).message}`);
         }

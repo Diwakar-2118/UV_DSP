@@ -115,7 +115,7 @@ export default function LoginPage() {
 
             <h2 className="mt-7 text-2xl font-light tracking-tight">{mode === 'login' ? 'Welcome back' : 'Begin your journey'}</h2>
             <p className="mt-1 text-sm text-white/45">
-              {mode === 'login' ? 'Sign in to continue your job search.' : 'Your QA & fintech preferences are pre-filled – edit them anytime.'}
+              {mode === 'login' ? 'Sign in to continue your job search.' : 'Pick your IT roles after signing up – QA, development, data, DevOps and more.'}
             </p>
 
             <form onSubmit={submit} className="mt-6 space-y-4" noValidate>

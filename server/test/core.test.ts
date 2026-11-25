@@ -48,13 +48,24 @@ describe('taxonomy', () => {
     expect(parseExperience('minimum 2 years')).toEqual({ min: 2, max: null });
     expect(parseExperience('no numbers')).toEqual({ min: null, max: null });
   });
-  it('classifies only QA roles', () => {
-    expect(classifyRoles('Backend Engineer', 'Build APIs')).toEqual([]);
+  it('classifies every IT role family and rejects non-IT jobs', () => {
+    expect(classifyRoles('Backend Engineer', 'Build APIs')).toEqual(['Backend Development']);
+    expect(classifyRoles('Senior Software Engineer')).toEqual(['Software Engineering']);
+    expect(classifyRoles('Data Scientist')).toEqual(['Data Science / ML']);
+    expect(classifyRoles('DevOps Engineer')).toEqual(['DevOps / SRE']);
+    expect(classifyRoles('Product Designer II')).toEqual(['UI/UX Design']);
+    // QA titles stay QA (not generic software engineering)
+    expect(classifyRoles('Software Development Engineer in Test II')).toEqual(['Manual QA']);
+    // Non-IT
+    expect(classifyRoles('Business Development Executive')).toEqual([]);
+    expect(classifyRoles('Sales Engineer')).toEqual([]);
+    expect(classifyRoles('Relationship Manager')).toEqual([]);
+    expect(classifyRoles('Marketing Manager')).toEqual([]);
     expect(classifyRoles('SDET', '')).toContain('QA Automation');
     expect(classifyRoles('QA Engineer', 'payment gateway testing')).toEqual(expect.arrayContaining(['Fintech QA', 'Manual QA']));
     expect(classifyRoles('Performance Test Engineer', 'JMeter')).toContain('Performance Testing');
     // Non-software "quality" roles are not QA
-    expect(classifyRoles('Staff Software Engineer- Search Quality')).toEqual([]);
+    expect(classifyRoles('Staff Software Engineer- Search Quality')).toEqual(['Software Engineering']); // IT, but not QA
     expect(classifyRoles('Assistant Manager_Supplier Quality')).toEqual([]);
     expect(classifyRoles('Senior Software Development Engineer in Test')).toContain('Manual QA');
   });

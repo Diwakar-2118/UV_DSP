@@ -1,3 +1,5 @@
+import { classifyRoles, ROLE_CATEGORIES } from './taxonomy.js';
+
 /**
  * Role-family and location matching for job discovery.
  * A role the user picks ("QA Engineer", "SDET", "Performance Testing"...) expands into title phrases
@@ -35,6 +37,45 @@ const NON_SOFTWARE_QA = /\b(aml|kyc|compliance|call|voice|audit|clinical|pharma|
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const phraseRe = (p: string) => new RegExp(`(?<![a-z0-9])${escape(p).replace(/\s+/g, '[\\s\\-_/,]+')}(?![a-z0-9])`, 'i');
 
+/** "IT" (or "All IT") means every IT role family. */
+export const ALL_IT = 'IT';
+const isAllIt = (r: string) => /^(it|all it|all it roles|any it|tech|technology)$/i.test(r.trim());
+
+/** Search keywords providers can use for a role family name. */
+const CATEGORY_QUERIES: Record<string, string> = {
+  'Manual QA': 'QA Engineer',
+  'QA Automation': 'SDET',
+  'API Testing': 'API Testing',
+  'Performance Testing': 'Performance Testing',
+  'Fintech QA': 'QA Engineer',
+  'Software Engineering': 'Software Engineer',
+  'Frontend Development': 'Frontend Developer',
+  'Backend Development': 'Backend Developer',
+  'Full Stack Development': 'Full Stack Developer',
+  'Mobile Development': 'Mobile Developer',
+  'DevOps / SRE': 'DevOps Engineer',
+  'Cloud Engineering': 'Cloud Engineer',
+  'Data Engineering': 'Data Engineer',
+  'Data Science / ML': 'Machine Learning Engineer',
+  'Data Analytics': 'Data Analyst',
+  Cybersecurity: 'Security Engineer',
+  'Product Management': 'Product Manager',
+  'UI/UX Design': 'UI UX Designer',
+  'Business Analysis': 'Business Analyst',
+  'IT Support & Admin': 'IT Support',
+  'Engineering Management': 'Engineering Manager',
+};
+const ALL_IT_QUERIES = ['Software Engineer', 'Developer', 'QA Engineer', 'Data Engineer', 'DevOps Engineer'];
+
+/** Keyword queries for providers that search by text (Amazon, Adzuna, SmartRecruiters...). */
+export function queryTerms(roles: string[]): string[] {
+  const out = roles.flatMap((r) => (isAllIt(r) ? ALL_IT_QUERIES : [CATEGORY_QUERIES[r] ?? r]));
+  return [...new Set(out.filter(Boolean))];
+}
+
+/** True when the request covers many families, so providers should list broadly instead of keyword searching. */
+export const isBroadSearch = (roles: string[]) => roles.some(isAllIt) || roles.length > 3;
+
 export function expandRoles(roles: string[]): RegExp[] {
   const out = new Map<string, RegExp>();
   for (const raw of roles) {
@@ -47,10 +88,23 @@ export function expandRoles(roles: string[]): RegExp[] {
   return [...out.values()];
 }
 
-/** True when the title belongs to one of the role families. Empty role list matches everything. */
+/**
+ * True when the title belongs to one of the requested roles. A role can be "IT" (any IT job),
+ * a role family name from the taxonomy ("Backend Development"), a known synonym ("SDET") or free text.
+ * Empty role list matches everything.
+ */
 export function matchesRoleFamily(title: string, roles: string[] | RegExp[]): boolean {
   if (!roles.length) return true;
-  const res = typeof roles[0] === 'string' ? expandRoles(roles as string[]) : (roles as RegExp[]);
+  if (typeof roles[0] === 'string') {
+    const names = roles as string[];
+    const families = classifyRoles(title);
+    if (names.some(isAllIt)) return families.length > 0;
+    if (names.some((r) => (families as string[]).includes(r))) return true;
+    const rest = names.filter((r) => !(ROLE_CATEGORIES as readonly string[]).includes(r));
+    if (!rest.length) return false;
+    return matchesRoleFamily(title, expandRoles(rest));
+  }
+  const res = roles as RegExp[];
   if (!res.some((re) => re.test(title))) return false;
   // "QA" alone is ambiguous (AML QA Specialist, Call Quality QA...). Require a software signal.
   if (NON_SOFTWARE_QA.test(title) && !/\b(software|sdet|automation|api|test engineer|qa engineer)\b/i.test(title)) return false;

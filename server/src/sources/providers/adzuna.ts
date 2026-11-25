@@ -1,5 +1,5 @@
 import { config } from '../../config.js';
-import { parseLocation } from '../../lib/roleFamilies.js';
+import { parseLocation, queryTerms } from '../../lib/roleFamilies.js';
 import { fetchJson } from '../http.js';
 import { type JobSourceAdapter, type RawJob } from '../types.js';
 import { htmlToText, toDate } from './util.js';
@@ -41,7 +41,7 @@ export const adzuna: JobSourceAdapter = {
     if (!SUPPORTED.has(country)) return [];
     const where = ctx.location.split(/[,;|]/).map((s) => s.trim()).find((s) => s && !/^(remote|india|anywhere)$/i.test(s)) ?? '';
     const out: RawJob[] = [];
-    for (const what of (ctx.roles.length ? ctx.roles : ['QA Engineer']).slice(0, 4)) {
+    for (const what of (ctx.roles.length ? queryTerms(ctx.roles) : ['Software Engineer']).slice(0, 4)) {
       const qs = new URLSearchParams({ app_id: config.sources.adzunaAppId, app_key: config.sources.adzunaAppKey, what, results_per_page: '50', max_days_old: '30', ...(where ? { where } : {}) });
       out.push(...parseAdzuna(await fetchJson(`https://api.adzuna.com/v1/api/jobs/${country}/search/1?${qs}`, { signal: ctx.signal }), country));
     }

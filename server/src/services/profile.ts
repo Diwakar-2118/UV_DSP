@@ -1,5 +1,5 @@
 import type { Db } from '../db/index.js';
-import { ROLE_CATEGORIES, PREFERRED_LOCATIONS } from '../lib/taxonomy.js';
+import { QA_CATEGORIES, PREFERRED_LOCATIONS } from '../lib/taxonomy.js';
 
 /** Primary user profile from the product brief – used to pre-populate every new account. */
 export const DEFAULT_PROFILE = {
@@ -15,7 +15,7 @@ export const DEFAULT_PROFILE = {
 };
 
 export const DEFAULT_PREFERENCES = {
-  roles: [...ROLE_CATEGORIES],
+  roles: [...QA_CATEGORIES], // a QA-focused default; any IT role family can be chosen
   locations: [...PREFERRED_LOCATIONS],
   min_experience: 3,
   max_experience: 5,

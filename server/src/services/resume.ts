@@ -27,6 +27,22 @@ const ROLE_SKILLS: Record<string, string[]> = {
   'Fintech QA': ['Payments', 'Payment Gateway Testing', 'Settlement', 'Reconciliation', 'UPI', 'ISO 8583', 'SQL', 'API Testing'],
   'QA Automation': ['Selenium', 'Playwright', 'Java', 'TypeScript', 'Cucumber', 'CI/CD', 'Git', 'API Testing'],
   'Performance Testing': ['JMeter', 'Performance Testing', 'SQL', 'API Testing', 'CI/CD'],
+  'Software Engineering': ['Java', 'Python', 'SQL', 'Git', 'CI/CD', 'Microservices', 'Agile'],
+  'Frontend Development': ['JavaScript', 'TypeScript', 'React', 'HTML/CSS', 'Git', 'API Testing'],
+  'Backend Development': ['Java', 'Spring Boot', 'Python', 'SQL', 'Microservices', 'Kafka', 'Docker'],
+  'Full Stack Development': ['JavaScript', 'TypeScript', 'React', 'Java', 'SQL', 'Docker', 'Git'],
+  'Mobile Development': ['Kotlin', 'Swift', 'Flutter', 'React Native', 'Git', 'API Testing'],
+  'DevOps / SRE': ['Docker', 'CI/CD', 'Terraform', 'AWS', 'Linux', 'Git'],
+  'Cloud Engineering': ['AWS', 'Azure', 'GCP', 'Terraform', 'Docker', 'Linux'],
+  'Data Engineering': ['SQL', 'Python', 'Spark', 'Airflow', 'Snowflake', 'Kafka'],
+  'Data Science / ML': ['Python', 'Machine Learning', 'SQL', 'Spark'],
+  'Data Analytics': ['SQL', 'Power BI', 'Python'],
+  Cybersecurity: ['Security Tools', 'Networking', 'Linux', 'AWS'],
+  'Product Management': ['Agile', 'Jira', 'SQL'],
+  'UI/UX Design': ['Figma', 'HTML/CSS'],
+  'Business Analysis': ['SQL', 'Jira', 'Agile', 'Power BI'],
+  'IT Support & Admin': ['Linux', 'Networking', 'SQL'],
+  'Engineering Management': ['Agile', 'CI/CD', 'Microservices', 'AWS'],
 };
 export const roleSkills = ROLE_SKILLS;
 
@@ -128,9 +144,9 @@ export function analyzeOffline(text: string, jd: string | null, profile: { fullN
 
   const userSkillSet = new Set(skills);
   const roleCompatibility = ROLE_CATEGORIES.map((role) => {
-    const req = ROLE_SKILLS[role];
+    const req = ROLE_SKILLS[role] ?? [];
     const have = req.filter((s) => userSkillSet.has(s));
-    return { role, score: Math.round((have.length / req.length) * 100), missing: req.filter((s) => !userSkillSet.has(s)) };
+    return { role, score: req.length ? Math.round((have.length / req.length) * 100) : 0, missing: req.filter((s) => !userSkillSet.has(s)) };
   }).sort((a, b) => b.score - a.score);
 
   const atsKeywordUniverse = ['Manual Testing', 'Functional Testing', 'Regression Testing', 'API Testing', 'Postman', 'SQL', 'Jira', 'Agile', 'Selenium', 'Playwright', 'Test Case Design', 'CI/CD', 'Payments', 'JMeter'];

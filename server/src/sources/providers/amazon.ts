@@ -1,4 +1,4 @@
-import { parseLocation } from '../../lib/roleFamilies.js';
+import { parseLocation, queryTerms } from '../../lib/roleFamilies.js';
 import { fetchJson } from '../http.js';
 import { type JobSourceAdapter, type RawJob } from '../types.js';
 import { htmlToText, toDate } from './util.js';
@@ -45,7 +45,7 @@ export const amazon: JobSourceAdapter = {
       .map((s) => s.replace(/^bangalore$/i, 'Bengaluru'))
       .slice(0, 3);
     const out = new Map<string, RawJob>();
-    for (const role of (ctx.roles.length ? ctx.roles : ['QA Engineer']).slice(0, 3)) {
+    for (const role of (ctx.roles.length ? queryTerms(ctx.roles) : ['Software Engineer']).slice(0, 4)) {
       const qs = new URLSearchParams({ base_query: role, result_limit: '50', sort: 'recent' });
       if (q.country === 'IN') qs.append('normalized_country_code[]', 'IND');
       for (const c of cities) qs.append('normalized_city_name[]', c);

@@ -28,4 +28,4 @@ export const inrToLpa = (v: number | null | undefined, currency = 'INR') =>
   v && currency.toUpperCase() === 'INR' ? Math.round(v / 1000) / 100 : null;
 
 /** Primary query term for providers that accept a single keyword. */
-export const primaryRole = (roles: string[]) => roles.find(Boolean) ?? 'QA Engineer';
+export const primaryRole = (roles: string[]) => roles.find(Boolean) ?? 'Software Engineer';
