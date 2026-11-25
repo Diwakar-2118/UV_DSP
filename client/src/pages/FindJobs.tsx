@@ -4,7 +4,7 @@ import { api } from '../lib/api';
 import { useApi, useAuth, useToast } from '../lib/context';
 import { LOCATIONS, ROLE_CATEGORIES, type Job, type JobSearchResponse } from '../lib/types';
 import JobCard from '../components/JobCard';
-import { Badge, Button, Card, ChipGroup, EmptyState, ErrorBox, Field, Input, PageHeader, Select, Spinner } from '../components/ui';
+import { Button, Card, ChipGroup, EmptyState, ErrorBox, Field, Input, PageHeader, Select, Spinner } from '../components/ui';
 
 export interface JobFilters {
   q: string;
@@ -20,13 +20,12 @@ export interface JobFilters {
   postedWithinDays: string;
   minMatch: string;
   sort: 'latest' | 'match' | 'experience' | 'company';
-  includeDemo: 'auto' | 'true' | 'false';
   savedOnly: boolean;
 }
 
 export const defaultFilters = (roles: string[] = [...ROLE_CATEGORIES], locations: string[] = [...LOCATIONS], min = 3, max = 5): JobFilters => ({
   q: '', roles, locations, expMin: String(min), expMax: String(max), company: '', industry: '', skills: '', salaryMin: '', jobType: '',
-  postedWithinDays: '30', minMatch: '', sort: 'latest', includeDemo: 'auto', savedOnly: false,
+  postedWithinDays: '30', minMatch: '', sort: 'latest', savedOnly: false,
 });
 
 export function useJobSearch(filters: JobFilters, page: number) {
@@ -35,8 +34,7 @@ export function useJobSearch(filters: JobFilters, page: number) {
       api.get<JobSearchResponse>('/jobs', {
         q: filters.q, roles: filters.roles, locations: filters.locations, expMin: filters.expMin, expMax: filters.expMax, company: filters.company,
         industry: filters.industry, skills: filters.skills ? filters.skills.split(',').map((s) => s.trim()) : undefined, salaryMin: filters.salaryMin,
-        jobType: filters.jobType, postedWithinDays: filters.postedWithinDays, minMatch: filters.minMatch, sort: filters.sort,
-        includeDemo: filters.includeDemo === 'auto' ? undefined : filters.includeDemo, savedOnly: filters.savedOnly ? 'true' : undefined, page, pageSize: 15,
+        jobType: filters.jobType, postedWithinDays: filters.postedWithinDays, minMatch: filters.minMatch, sort: filters.sort, savedOnly: filters.savedOnly ? 'true' : undefined, page, pageSize: 15,
       }),
     [JSON.stringify(filters), page],
   );
@@ -125,15 +123,6 @@ export function FiltersPanel({ f, set, onReset }: { f: JobFilters; set: (p: Part
           )}
         </Field>
       </div>
-      <Field label="Data source">
-        {(id) => (
-          <Select id={id} value={f.includeDemo} onChange={(e) => set({ includeDemo: e.target.value as JobFilters['includeDemo'] })}>
-            <option value="auto">Live listings (demo only if none)</option>
-            <option value="false">Live listings only</option>
-            <option value="true">Live + demo data</option>
-          </Select>
-        )}
-      </Field>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={f.savedOnly} onChange={(e) => set({ savedOnly: e.target.checked })} className="h-4 w-4 rounded accent-navy-700" /> Saved jobs only
       </label>
@@ -172,7 +161,7 @@ export default function FindJobs({ preset }: { preset?: Partial<JobFilters> }) {
     setRefreshing(true);
     try {
       const r = await api.post<{ sources: { source: string; status: string; detail?: string; stats?: { inserted: number } }[]; alerts: { created: number } }>('/jobs/refresh');
-      const ok = r.sources.filter((s) => s.status === 'ok' && s.source !== 'demo');
+      const ok = r.sources.filter((s) => s.status === 'ok');
       const added = ok.reduce((a, s) => a + (s.stats?.inserted ?? 0), 0);
       toast(ok.length ? `Fetched from ${ok.length} live source(s): ${added} new job(s), ${r.alerts.created} new alert(s)` : 'No live source returned data – check Settings → Job sources', ok.length ? 'success' : 'info');
       await reload();
@@ -225,8 +214,8 @@ export default function FindJobs({ preset }: { preset?: Partial<JobFilters> }) {
           </div>
 
           {data && !data.liveAvailable && (
-            <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200" data-testid="demo-banner">
-              <strong>Showing demo data.</strong> No live source has returned jobs yet. Demo listings use fictional companies, are marked <Badge tone="amber">DEMO DATA</Badge>, and are never sent as alerts. Click “Fetch latest jobs” or configure sources in Settings.
+            <div className="rounded-xl border border-navy-200 bg-navy-50 px-4 py-3 text-sm text-navy-900 dark:border-navy-800 dark:bg-navy-950 dark:text-navy-100" data-testid="no-live-banner">
+              <strong>No jobs collected yet.</strong> Click “Fetch latest jobs” to pull live QA roles from company career pages (Greenhouse, Lever, Ashby, SmartRecruiters, Workday, Amazon) and the job APIs enabled in Settings.
             </div>
           )}
 
@@ -243,7 +232,7 @@ export default function FindJobs({ preset }: { preset?: Partial<JobFilters> }) {
             data && (
               <>
                 <p className="text-sm text-slate-500" data-testid="results-count">
-                  {data.total} job{data.total === 1 ? '' : 's'} found {data.includeDemo && data.liveAvailable && '· including demo data'}
+                  {data.total} job{data.total === 1 ? '' : 's'} found
                 </p>
                 <div className={loading ? 'space-y-4 opacity-60 transition' : 'space-y-4'}>
                   {data.jobs.map((j) => <JobCard key={j.id} job={j} onChange={updateJob} />)}

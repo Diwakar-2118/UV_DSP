@@ -1,0 +1,55 @@
+{
+  "apiVersion": "2.2.22",
+  "documentationUrl": "https://jobi.cy/apidocs",
+  "friendlyNotice": "Thanks for using Jobicy API! Please ensure Jobicy is clearly credited with a direct link to the source, and all application buttons redirect to the original job URL provided in this feed. That’s all! You might be building something amazing, we wish you the best of luck!",
+  "jobCount": 20,
+  "lastUpdate": "2026-11-25T03:25:44+00:00",
+  "nextCursor": "AgAAAABrBsfSAAAAAGsDsicAAAAAAAJLQ-qD915s4u7UXSGkUuxJSkLz_zDK2vBIbqbq9MHZQt-wIl-Oe4InvQIfBxHYCsouYq2fgJL2kDWIHCLRGcqA8bE",
+  "hasMore": true,
+  "appliedFilters": {
+    "count": 20,
+    "tag": "qa"
+  },
+  "jobs": [
+    {
+      "id": 156966,
+      "url": "https://jobicy.com/jobs/156966-senior-automation-process-specialist",
+      "jobSlug": "156966-senior-automation-process-specialist",
+      "jobTitle": "Senior Automation & Process Specialist",
+      "companyName": "Thumbtack",
+      "companyLogo": "https://jobicy.com/data/server-nyc0409/galaxy/mercury/2021/05/Jobicy-210503180426-842530.jpg",
+      "jobIndustry": [
+        "Product & Operations"
+      ],
+      "jobType": [
+        "Full-Time"
+      ],
+      "jobGeo": "Philippines",
+      "jobLevel": "Senior",
+      "jobExcerpt": "Thumbtack helps millions of people confidently care for their homes. Thumbtack is the one app you need to take care of and improve your home — from personalized guidance to AI tools and a best-in-class hiring experience. Every day in every county of the U.S., people turn to Thumbtack to complete urgent repairs, seasonal maintenance&hellip;",
+      "jobDescription": "<h3><strong>Thumbtack helps millions of people confidently care for their homes.</strong></h3>\n<p>Thumbtack is the one app you need to take care of and improve your home — from personalized guidance to AI tools and a best-in-class hiring experience. Every day in every county of the U.S., people turn to Thumbtack to complete urgent repairs, seasonal maintenance and bigger improvements. We help homeowners know which projects to do, when to do them and who to hire from our growing community of 300,000 local service businesses. If making an impact inspires you, join us. Imagine what we’ll build together.</p>\n<h3><strong>About the Service Team</strong></h3>\n<p>We are a close-knit team of process, program management, customer experience, and workforce management professionals committed to delivering world class service through operational excellence and strategic enablement. We work closely with our frontline Service, Business Apps, QA, Enablement, and Analytics teams to identify friction points in customer and pro support journeys and redesign them using AI driven automation and improved processes. Our goal is to create service experiences that are efficient for our operations team and effective for our customers and pros. </p>\n<h3><strong>About the role</strong></h3>\n<p>As Sr. Automation &amp; Process Specialist, you will play a key role in Thumbtack’s service experience transformation. You will take ownership of specific business challenges within the service journey and lead pr",
+      "pubDate": "2026-11-25T03:25:44+00:00"
+    },
+    {
+      "id": 156993,
+      "url": "https://jobicy.com/jobs/156993-project-manager-service-operations",
+      "jobSlug": "156993-project-manager-service-operations",
+      "jobTitle": "Project Manager (Service Operations)",
+      "companyName": "Thumbtack",
+      "companyLogo": "https://jobicy.com/data/server-nyc0409/galaxy/mercury/2021/05/Jobicy-210503180426-842530.jpg",
+      "jobIndustry": [
+        "Project & Program Management"
+      ],
+      "jobType": [
+        "Full-Time"
+      ],
+      "jobGeo": "Philippines",
+      "jobLevel": "Any",
+      "jobExcerpt": "Thumbtack helps millions of people confidently care for their homes. Thumbtack is the one app you need to take care of and improve your home — from personalized guidance to AI tools and a best-in-class hiring experience. Every day in every county of the U.S., people turn to Thumbtack to complete urgent repairs, seasonal maintenance&hellip;",
+      "jobDescription": "<h3><strong>Thumbtack helps millions of people confidently care for their homes.</strong></h3>\n<p>Thumbtack is the one app you need to take care of and improve your home — from personalized guidance to AI tools and a best-in-class hiring experience. Every day in every county of the U.S., people turn to Thumbtack to complete urgent repairs, seasonal maintenance and bigger improvements. We help homeowners know which projects to do, when to do them and who to hire from our growing community of 300,000 local service businesses. If making an impact inspires you, join us. Imagine what we’ll build together.</p>\n<h3><strong>About the Service Operations Team</strong></h3>\n<p>We're a tight-knit team of project management, process, customer experience and workforce management professionals working together to deliver world-class service through operational excellence and strategic enablement. We collaborate closely with frontline Service, Business Apps, QA, Enablement, and Analytics teams to plan and deliver on complex initiatives that improve processes, tools, and how our service operates day-to-day. Our focus is on creating service experiences that are both efficient for our operations team and effective for our customers and pros.</p>\n</p>\n<h3><strong>About the role</strong></h3>\n<p>As a Project Manager within Thumbtack’s Service Operations PMO team, you will be responsible for planning, executing, and overseeing programs that improve our service delivery and operational efficiency. ",
+      "pubDate": "2026-11-25T03:25:40+00:00"
+    }
+  ],
+  "statusCode": 200,
+  "success": true
+}

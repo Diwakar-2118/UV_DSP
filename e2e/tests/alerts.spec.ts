@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { registerViaApi, seedLiveJobs } from './helpers';
 
 test.describe('Daily job alerts', () => {
-  test('matches new live jobs once, never duplicates, and never alerts demo data', async ({ page }) => {
+  test('matches new live jobs once and never duplicates', async ({ page }) => {
     await registerViaApi(page);
     const tag = `alert${Date.now()}`;
     await seedLiveJobs(page.request, tag, [{}, { title: `QA Engineer Pune ${tag}`, location: 'Pune' }]);
@@ -12,7 +12,6 @@ test.describe('Daily job alerts', () => {
     const list = page.getByTestId('notification-list');
     await expect(list).toContainText(`Fintech QA Engineer ${tag}-0`);
     await expect(list).not.toContainText(`QA Engineer Pune ${tag}`); // outside preferred locations
-    await expect(list).not.toContainText('(Demo)');
     await expect(page.getByTestId('unread-badge')).toBeVisible();
 
     const before = (await (await page.request.get('/api/notifications')).json()).notifications.length;

@@ -54,15 +54,10 @@ export const config = {
   },
   sources: {
     liveEnabled: bool(process.env.ENABLE_LIVE_SOURCES, true),
-    // Companies with QA/SDET openings in Bengaluru/Hyderabad on keyless public job-board APIs.
-    greenhouseBoards: list(process.env.GREENHOUSE_BOARDS, ['razorpaysoftwareprivatelimited', 'groww', 'hackerrank', 'netskope', 'highradius', 'rubrik', 'zscaler', 'okta', 'databricks']),
-    smartRecruitersCompanies: list(process.env.SMARTRECRUITERS_COMPANIES, ['BoschGroup', 'Experian']),
-    leverCompanies: list(process.env.LEVER_COMPANIES, []),
     adzunaAppId: process.env.ADZUNA_APP_ID ?? '',
     adzunaAppKey: process.env.ADZUNA_APP_KEY ?? '',
     jsearchApiKey: process.env.JSEARCH_API_KEY ?? '',
   },
-  seedDemoJobs: bool(process.env.SEED_DEMO_JOBS, true),
   maxUploadBytes: Number(process.env.MAX_UPLOAD_MB ?? 5) * 1024 * 1024,
 };
 export type Config = typeof config;

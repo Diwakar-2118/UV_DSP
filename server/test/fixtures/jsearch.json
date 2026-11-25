@@ -1,0 +1,26 @@
+{
+  "_note": "Hand-written sample following the provider documented response format (no live call).",
+  "status": "OK",
+  "data": [
+    {
+      "job_id": "abcDEF123==",
+      "job_title": "Performance Test Engineer (JMeter)",
+      "employer_name": "Gamma Bank",
+      "job_publisher": "LinkedIn",
+      "job_employment_type": "FULLTIME",
+      "job_apply_link": "https://www.linkedin.com/jobs/view/123",
+      "job_description": "Load testing with JMeter and Gatling.",
+      "job_is_remote": false,
+      "job_posted_at_datetime_utc": "2026-11-19T10:00:00.000Z",
+      "job_city": "Hyderabad",
+      "job_state": "Telangana",
+      "job_country": "IN",
+      "job_min_salary": 1500000,
+      "job_max_salary": 2200000,
+      "job_salary_period": "YEAR",
+      "job_required_experience": {
+        "required_experience_in_months": 48
+      }
+    }
+  ]
+}

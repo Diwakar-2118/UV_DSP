@@ -1,0 +1,24 @@
+{
+  "_note": "Hand-written sample following the provider documented response format (no live call).",
+  "total": 2,
+  "jobPostings": [
+    {
+      "title": "Senior QA Engineer - Salesforce Platform",
+      "externalPath": "/job/India---Hyderabad/Senior-QA-Engineer---Salesforce-Platform_JR301234",
+      "locationsText": "India - Hyderabad",
+      "postedOn": "Posted 3 Days Ago",
+      "bulletFields": [
+        "JR301234"
+      ]
+    },
+    {
+      "title": "Software Engineer, Backend",
+      "externalPath": "/job/India---Bangalore/Software-Engineer--Backend_JR301999",
+      "locationsText": "India - Bangalore",
+      "postedOn": "Posted Today",
+      "bulletFields": [
+        "JR301999"
+      ]
+    }
+  ]
+}

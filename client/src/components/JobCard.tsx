@@ -67,7 +67,7 @@ export default function JobCard({ job, onChange }: { job: Job; onChange?: (j: Jo
   const [askTrack, setAskTrack] = useState(false);
   const [tracking, setTracking] = useState(false);
   const sal = salaryText(job);
-  const linkedInSearch = `https://www.linkedin.com/jobs/search/?${new URLSearchParams({ keywords: job.title.replace(/\(Demo\)|–.*$/g, '').trim(), location: job.location_tags.includes('Remote') ? 'India' : `${job.location_tags[0] ?? 'Bengaluru'}, India` })}`;
+  const linkedInSearch = `https://www.linkedin.com/jobs/search/?${new URLSearchParams({ keywords: job.title.replace(/–.*$/g, '').trim(), location: job.location_tags.includes('Remote') ? 'India' : `${job.location_tags[0] ?? 'Bengaluru'}, India` })}`;
 
   const toggleSave = async () => {
     setSaving(true);
@@ -98,12 +98,12 @@ export default function JobCard({ job, onChange }: { job: Job; onChange?: (j: Jo
   };
 
   return (
-    <article className={clsx('card p-5 transition hover:shadow-md', job.is_demo && 'border-dashed border-amber-300 dark:border-amber-800')} data-testid="job-card">
+    <article className="card p-5 transition hover:shadow-md" data-testid="job-card">
       <div className="flex gap-4">
         <ScoreRing value={job.match.score} label={`${job.match.score}% match`} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            {job.is_demo ? <Badge tone="amber" data-testid="demo-badge">DEMO DATA</Badge> : <Badge tone="green">Live listing</Badge>}
+            <Badge tone="green">Live listing</Badge>
             {job.roles.slice(0, 3).map((r) => (
               <Badge key={r} tone="navy">
                 {r}
@@ -163,7 +163,7 @@ export default function JobCard({ job, onChange }: { job: Job; onChange?: (j: Jo
               <Button size="sm" variant="subtle" onClick={() => void track('Interested')} loading={tracking} data-testid="track-job">
                 <Plus className="h-4 w-4" /> Track
               </Button>
-              <a href={linkedInSearch} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-xl bg-navy-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-navy-800" title="Demo listings have no real application link – search for similar live roles">
+              <a href={linkedInSearch} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-xl bg-navy-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-navy-800" title="This job has no application link – search for similar live roles">
                 <Search className="h-3.5 w-3.5" /> Find similar on LinkedIn
               </a>
             </>

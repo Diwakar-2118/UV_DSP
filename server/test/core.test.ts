@@ -112,15 +112,15 @@ describe('job ingestion & dedupe', () => {
     expect(n).toBe(2);
   });
 
-  it('search filters by location, date and min match; demo excluded when live exists', async () => {
-    await ingestJobs(db, 'demo', [raw({ externalId: 'demo-1', company: 'Demo Co (Demo)', applyUrl: null, title: 'QA Analyst' })], true);
+  it('search filters by location, date and min match; never returns demo rows', async () => {
+    // A legacy demo row (e.g. left over in an old database) must never be shown.
+    await db.query("INSERT INTO jobs (source_id, external_id, title, company, location, location_tags, skills, roles, description, posted_at, fingerprint, is_demo) VALUES ('greenhouse','legacy-demo','QA Analyst','Old Demo Co (Demo)','Bengaluru',ARRAY['Bengaluru'],ARRAY[]::text[],ARRAY['Manual QA'],'demo',now(),'legacy-demo-fp',true)");
     await ingestJobs(db, 'greenhouse', [raw({ externalId: 'old', title: 'Old QA Tester', applyUrl: 'https://x.example/old', postedAt: new Date(Date.now() - 20 * 86400000) })]);
     await ingestJobs(db, 'greenhouse', [raw({ externalId: 'pune', title: 'QA Engineer Pune', location: 'Pune', applyUrl: 'https://x.example/pune' })]);
     const all = await searchJobs(db, userId, {});
     expect(all.liveAvailable).toBe(true);
     expect(all.jobs.every((j: any) => !j.is_demo)).toBe(true);
-    const withDemo = await searchJobs(db, userId, { includeDemo: true });
-    expect(withDemo.jobs.some((j: any) => j.is_demo)).toBe(true);
+    expect(all.jobs.find((j: any) => j.company === 'Old Demo Co (Demo)')).toBeUndefined();
     const recent = await searchJobs(db, userId, { postedWithinDays: 7 });
     expect(recent.jobs.find((j: any) => j.title === 'Old QA Tester')).toBeUndefined();
     const blr = await searchJobs(db, userId, { locations: ['Bengaluru'] });

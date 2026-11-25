@@ -1,0 +1,20 @@
+{
+  "_note": "Hand-written sample following the provider documented response format (no live call).",
+  "jobPostingInfo": {
+    "id": "abc123",
+    "title": "Senior QA Engineer - Salesforce Platform",
+    "jobDescription": "<p>Own test strategy for platform APIs. <b>Selenium</b>, Postman, SQL and Jenkins. 4-7 years of experience.</p>",
+    "location": "India - Hyderabad",
+    "postedOn": "Posted 3 Days Ago",
+    "startDate": "2026-11-22",
+    "timeType": "Full time",
+    "jobReqId": "JR301234",
+    "country": {
+      "descriptor": "India"
+    },
+    "externalUrl": "https://salesforce.wd12.myworkdayjobs.com/External_Career_Site/job/India---Hyderabad/Senior-QA-Engineer---Salesforce-Platform_JR301234"
+  },
+  "hiringOrganization": {
+    "name": "Salesforce"
+  }
+}

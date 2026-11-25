@@ -1,5 +1,4 @@
 import type { Db } from '../db/index.js';
-import { config } from '../config.js';
 import {
   classifyRoles,
   extractSkills,
@@ -10,9 +9,9 @@ import {
   parseExperience,
 } from '../lib/taxonomy.js';
 import { ADAPTERS, SEARCH_LINK_SOURCES } from '../sources/adapters.js';
-import { DEMO_INDUSTRY } from '../sources/demo.js';
-import type { JobSourceAdapter, RawJob } from '../sources/types.js';
+import type { FetchContext, RawJob } from '../sources/types.js';
 import { scoreJob, type MatchProfile, type MatchResult } from './matching.js';
+import { runProviders, type ProviderRun } from './providerRunner.js';
 
 export interface IngestStats {
   fetched: number;
@@ -23,7 +22,7 @@ export interface IngestStats {
   insertedIds: string[];
 }
 
-/** Register all adapters + search-link boards in job_sources (idempotent). */
+/** Register all providers + search-link boards in job_sources (idempotent). */
 export async function syncSourceRegistry(db: Db) {
   for (const a of ADAPTERS) {
     await db.query(
@@ -45,7 +44,7 @@ export async function syncSourceRegistry(db: Db) {
 }
 
 /** Normalise raw jobs, drop non-QA roles, de-duplicate and upsert. */
-export async function ingestJobs(db: Db, sourceId: string, raws: RawJob[], isDemo = false): Promise<IngestStats> {
+export async function ingestJobs(db: Db, sourceId: string, raws: RawJob[]): Promise<IngestStats> {
   const stats: IngestStats = { fetched: raws.length, relevant: 0, inserted: 0, updated: 0, duplicates: 0, insertedIds: [] };
   const seenInBatch = new Set<string>();
   for (const r of raws) {
@@ -67,7 +66,7 @@ export async function ingestJobs(db: Db, sourceId: string, raws: RawJob[], isDem
     const exp = r.expMin != null || r.expMax != null ? { min: r.expMin ?? null, max: r.expMax ?? null } : parseExperience(text);
     const skills = extractSkills(text);
     const locationTags = normalizeLocations(r.location, r.isRemote);
-    const industry = isDemo ? DEMO_INDUSTRY[r.company] ?? inferIndustry(r.company, text) : inferIndustry(r.company, text);
+    const industry = inferIndustry(r.company, text);
     const postedAt = r.postedAt && !Number.isNaN(r.postedAt.getTime()) ? r.postedAt : new Date();
     const notice = r.noticePeriod ?? (text.match(/notice period[^.\n]{0,60}/i)?.[0] ?? null);
 
@@ -76,10 +75,10 @@ export async function ingestJobs(db: Db, sourceId: string, raws: RawJob[], isDem
       await db.query(
         `UPDATE jobs SET title=$2, company=$3, location=$4, location_tags=$5, exp_min=$6, exp_max=$7, skills=$8, roles=$9,
            description=$10, industry=$11, salary_text=$12, salary_min_lpa=$13, salary_max_lpa=$14, job_type=$15,
-           last_seen_at=now(), is_active=true, posted_at=CASE WHEN $16 THEN $17::timestamptz ELSE posted_at END
+           last_seen_at=now(), is_active=true
          WHERE id=$1`,
         [existing[0].id, r.title, r.company, r.location, locationTags, exp.min, exp.max, skills, roles, r.description,
-          industry, r.salaryText ?? null, r.salaryMinLpa ?? null, r.salaryMaxLpa ?? null, r.jobType ?? null, isDemo, postedAt],
+          industry, r.salaryText ?? null, r.salaryMinLpa ?? null, r.salaryMaxLpa ?? null, r.jobType ?? null],
       );
       stats.updated++;
       continue;
@@ -100,11 +99,11 @@ export async function ingestJobs(db: Db, sourceId: string, raws: RawJob[], isDem
       `INSERT INTO jobs (source_id, external_id, source_site, title, company, location, location_tags, exp_min, exp_max,
          salary_min_lpa, salary_max_lpa, salary_text, job_type, industry, skills, roles, notice_period, description,
          posted_at, apply_url, normalized_url, fingerprint, is_demo)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,false)
        ON CONFLICT DO NOTHING RETURNING id`,
       [sourceId, r.externalId, r.sourceSite ?? '', r.title, r.company, r.location, locationTags, exp.min, exp.max,
         r.salaryMinLpa ?? null, r.salaryMaxLpa ?? null, r.salaryText ?? null, r.jobType ?? null, industry, skills, roles,
-        notice, r.description, postedAt, r.applyUrl ?? null, normalizedUrl, fp, isDemo],
+        notice, r.description, postedAt, r.applyUrl ?? null, normalizedUrl, fp],
     );
     if (rows.length) {
       stats.inserted++;
@@ -121,56 +120,66 @@ export interface SourceRunResult {
   stats?: Omit<IngestStats, 'insertedIds'>;
 }
 
+/** Map the app's role categories to search keywords providers understand. */
+const ROLE_QUERIES: Record<string, string> = {
+  'Manual QA': 'QA Engineer',
+  'QA Automation': 'SDET',
+  'API Testing': 'API Testing',
+  'Performance Testing': 'Performance Testing',
+  'Fintech QA': 'QA Engineer',
+};
+export const rolesToQueries = (roles: string[]) => [...new Set(roles.map((r) => ROLE_QUERIES[r] ?? r))];
+
+/** Search context for the scheduled run: every user's preferred roles and locations. */
+export async function scheduledContext(db: Db): Promise<Omit<FetchContext, 'signal'>> {
+  const rows = await db.query<{ roles: string[]; locations: string[] }>('SELECT roles, locations FROM job_preferences');
+  const roles = rolesToQueries([...new Set(rows.flatMap((r) => r.roles ?? []))]);
+  const locations = [...new Set(rows.flatMap((r) => r.locations ?? []))];
+  return {
+    roles: roles.length ? roles : ['QA Engineer', 'SDET'],
+    location: (locations.length ? locations : ['Bengaluru', 'Hyderabad', 'Remote']).join(', '),
+  };
+}
+
+/** Record a provider run in job_sources and ingest its jobs. */
+export async function recordRun(db: Db, run: ProviderRun): Promise<SourceRunResult> {
+  if (run.status === 'skipped') {
+    await db.query(`UPDATE job_sources SET last_status='skipped', last_error=$2 WHERE id=$1`, [run.source, run.detail ?? null]);
+    return { source: run.source, status: 'skipped', detail: run.detail };
+  }
+  if (run.status === 'error' && !run.jobs.length) {
+    await db.query(`UPDATE job_sources SET last_run_at=now(), last_status='error', last_error=$2 WHERE id=$1`, [run.source, (run.detail ?? '').slice(0, 500)]);
+    return { source: run.source, status: 'error', detail: run.detail };
+  }
+  const stats = await ingestJobs(db, run.source, run.jobs);
+  if (!run.cached) {
+    await db.query(
+      `UPDATE job_sources SET last_run_at=now(), last_status='ok', last_error=$2, last_fetched=$3, last_relevant=$4, last_inserted=$5 WHERE id=$1`,
+      [run.source, run.status === 'error' ? `Partial: ${(run.detail ?? '').slice(0, 450)}` : null, stats.fetched, stats.relevant, stats.inserted],
+    );
+  }
+  const { insertedIds: _ids, ...rest } = stats;
+  return { source: run.source, status: 'ok', detail: run.detail, stats: rest };
+}
+
 let collecting: Promise<SourceRunResult[]> | null = null;
 
-/** Run every enabled + configured source. Concurrent calls share the same run. */
-export function collectJobs(db: Db, opts: { includeLive?: boolean } = {}): Promise<SourceRunResult[]> {
+/** Run every enabled + configured provider concurrently (40 s budget). Concurrent calls share the same run. */
+export function collectJobs(db: Db, opts: { includeLive?: boolean; budgetMs?: number } = {}): Promise<SourceRunResult[]> {
   if (collecting) return collecting;
   collecting = (async () => {
     await syncSourceRegistry(db);
-    const enabled = new Set(
-      (await db.query<{ id: string }>('SELECT id FROM job_sources WHERE enabled')).map((r) => r.id),
-    );
+    const ctx = await scheduledContext(db);
+    const runs = await runProviders(db, ctx, { includeLive: opts.includeLive, budgetMs: opts.budgetMs });
     const results: SourceRunResult[] = [];
-    const includeLive = opts.includeLive ?? config.sources.liveEnabled;
-    for (const a of ADAPTERS) {
-      const reason = !enabled.has(a.id)
-        ? 'Disabled in settings'
-        : a.isLive && !includeLive
-          ? 'Live sources disabled (ENABLE_LIVE_SOURCES=false)'
-          : a.unavailableReason();
-      if (reason) {
-        results.push({ source: a.id, status: 'skipped', detail: reason });
-        await db.query(`UPDATE job_sources SET last_status='skipped', last_error=$2 WHERE id=$1`, [a.id, reason]);
-        continue;
-      }
-      results.push(await runSource(db, a));
-    }
+    for (const run of runs) results.push(await recordRun(db, run));
+    // Listings not seen by any run for 21 days are treated as closed.
+    await db.query(`UPDATE jobs SET is_active=false WHERE is_active AND last_seen_at < now() - interval '21 days'`);
     return results;
   })().finally(() => {
     collecting = null;
   });
   return collecting;
-}
-
-async function runSource(db: Db, a: JobSourceAdapter): Promise<SourceRunResult> {
-  const started = new Date();
-  try {
-    const raws = await a.fetch();
-    const stats = await ingestJobs(db, a.id, raws, !a.isLive);
-    // Listings that disappeared from a successful fetch are closed.
-    if (a.isLive) await db.query(`UPDATE jobs SET is_active=false WHERE source_id=$1 AND last_seen_at < $2 AND first_seen_at < $2`, [a.id, started]);
-    await db.query(
-      `UPDATE job_sources SET last_run_at=now(), last_status='ok', last_error=NULL, last_fetched=$2, last_relevant=$3, last_inserted=$4 WHERE id=$1`,
-      [a.id, stats.fetched, stats.relevant, stats.inserted],
-    );
-    const { insertedIds, ...rest } = stats;
-    return { source: a.id, status: 'ok', stats: rest };
-  } catch (e) {
-    const msg = (e as Error).message.slice(0, 500);
-    await db.query(`UPDATE job_sources SET last_run_at=now(), last_status='error', last_error=$2 WHERE id=$1`, [a.id, msg]);
-    return { source: a.id, status: 'error', detail: msg };
-  }
 }
 
 export async function hasLiveJobs(db: Db): Promise<boolean> {
@@ -208,7 +217,6 @@ export interface JobSearchParams {
   postedWithinDays?: number;
   minMatch?: number;
   sort?: 'latest' | 'match' | 'experience' | 'company';
-  includeDemo?: boolean;
   savedOnly?: boolean;
   page?: number;
   pageSize?: number;
@@ -221,9 +229,8 @@ export async function searchJobs(db: Db, userId: string, p: JobSearchParams) {
     args.push(v);
     where.push(sql.replace('?', `$${args.length}`));
   };
+  where.push('NOT j.is_demo'); // demo data is never shown
   const liveAvailable = await hasLiveJobs(db);
-  const includeDemo = p.includeDemo ?? !liveAvailable;
-  if (!includeDemo) where.push('NOT j.is_demo');
   if (p.q) add(`(j.title ILIKE ? OR j.company ILIKE $${args.length + 1} OR j.description ILIKE $${args.length + 1})`, `%${p.q}%`);
   if (p.roles?.length) add('j.roles && ?::text[]', p.roles);
   if (p.locations?.length) add('j.location_tags && ?::text[]', p.locations);
@@ -241,7 +248,7 @@ export async function searchJobs(db: Db, userId: string, p: JobSearchParams) {
   const rows = await db.query(
     `SELECT j.id, j.source_id, js.name AS source_name, j.source_site, j.title, j.company, j.location, j.location_tags,
             j.exp_min, j.exp_max, j.salary_min_lpa, j.salary_max_lpa, j.salary_text, j.job_type, j.industry, j.skills,
-            j.roles, j.notice_period, j.description, j.posted_at, j.apply_url, j.is_demo, j.first_seen_at,
+            j.roles, j.notice_period, j.description, j.posted_at, j.apply_url, j.first_seen_at,
             (s.job_id IS NOT NULL) AS saved
        FROM jobs j JOIN job_sources js ON js.id = j.source_id
        LEFT JOIN saved_jobs s ON s.job_id = j.id AND s.user_id = $1
@@ -274,7 +281,6 @@ export async function searchJobs(db: Db, userId: string, p: JobSearchParams) {
     total: scored.length,
     page,
     pageSize,
-    includeDemo,
     liveAvailable,
     jobs: scored.slice((page - 1) * pageSize, page * pageSize).map(({ description, ...j }) => ({
       ...j,

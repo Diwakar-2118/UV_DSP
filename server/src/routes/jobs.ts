@@ -5,7 +5,8 @@ import { getDb } from '../db/index.js';
 import { config } from '../config.js';
 import { assertAdmin, assertUuid, asyncH, HttpError, parse, uid } from '../lib/http.js';
 import { buildSearchLinks } from '../sources/adapters.js';
-import { getJob, searchJobs } from '../services/jobs.js';
+import { getJob, ingestJobs, rolesToQueries, searchJobs } from '../services/jobs.js';
+import { discoverJobs } from '../services/discovery.js';
 import { runCollectionCycle } from '../services/scheduler.js';
 
 const router = Router();
@@ -15,7 +16,6 @@ const csv = z
   .optional()
   .transform((v) => (v === undefined ? undefined : (Array.isArray(v) ? v : v.split(',')).map((s) => s.trim()).filter(Boolean)));
 const num = z.coerce.number().finite().optional();
-const boolish = z.enum(['true', 'false', 'auto']).optional().transform((v) => (v === 'true' ? true : v === 'false' ? false : undefined));
 
 const searchSchema = z.object({
   q: z.string().max(100).optional(),
@@ -31,7 +31,6 @@ const searchSchema = z.object({
   postedWithinDays: z.coerce.number().int().refine((n) => [1, 3, 7, 30].includes(n), 'Must be 1, 3, 7 or 30').optional(),
   minMatch: z.coerce.number().int().min(0).max(100).optional(),
   sort: z.enum(['latest', 'match', 'experience', 'company']).optional(),
-  includeDemo: boolish,
   savedOnly: z.enum(['true', 'false']).optional().transform((v) => v === 'true'),
   page: z.coerce.number().int().min(1).optional(),
   pageSize: z.coerce.number().int().min(1).max(100).optional(),
@@ -42,6 +41,66 @@ router.get(
   asyncH(async (req, res) => {
     const p = parse(searchSchema, req.query);
     res.json(await searchJobs(await getDb(), uid(req), p));
+  }),
+);
+
+/**
+ * Live discovery from official sources: GET /api/jobs/discover?roles=QA%20Engineer,SDET&location=Hyderabad&top=20
+ * Runs providers concurrently (40 s budget), de-duplicates, filters by role family + location, ranks against the
+ * profile and returns the top N with matched / missing skills. Cached per user for 15 minutes.
+ */
+const discoverLimiter = rateLimit({ windowMs: 60 * 1000, limit: config.nodeEnv === 'test' ? 100 : 6, message: { error: 'Too many discovery requests – try again in a minute.' } });
+router.get(
+  '/discover',
+  discoverLimiter,
+  asyncH(async (req, res) => {
+    const p = parse(
+      z.object({
+        roles: csv.transform((v) => v ?? []),
+        location: z.string().max(120).default(''),
+        top: z.coerce.number().int().min(1).max(100).default(20),
+      }),
+      req.query,
+    );
+    const db = await getDb();
+    const prefs = await db.query<{ roles: string[]; locations: string[] }>('SELECT roles, locations FROM job_preferences WHERE user_id=$1', [uid(req)]);
+    const roles = p.roles.length ? p.roles.slice(0, 6) : rolesToQueries(prefs[0]?.roles ?? []);
+    const location = p.location || (prefs[0]?.locations ?? []).join(', ');
+    res.json(await discoverJobs(db, uid(req), { roles: roles.length ? roles : ['QA Engineer'], location, top: p.top }));
+  }),
+);
+
+/** Add a job yourself (pasted text + optional link). The link is stored, never fetched. */
+router.post(
+  '/import',
+  asyncH(async (req, res) => {
+    const p = parse(
+      z.object({
+        title: z.string().trim().min(2).max(200),
+        company: z.string().trim().min(1).max(200),
+        location: z.string().trim().max(200).default(''),
+        url: z.string().url().max(2000).refine((u) => /^https?:\/\//i.test(u), 'Must be an http(s) link').optional(),
+        text: z.string().max(50_000).default(''),
+      }),
+      req.body,
+    );
+    const db = await getDb();
+    const stats = await ingestJobs(db, 'manual', [
+      {
+        externalId: `${uid(req)}:${Date.now()}`,
+        title: p.title,
+        company: p.company,
+        location: p.location,
+        isRemote: /remote/i.test(p.location),
+        description: p.text,
+        applyUrl: p.url ?? null,
+        sourceSite: 'Added by you',
+        postedAt: new Date(),
+      },
+    ]);
+    if (!stats.relevant) throw new HttpError(422, 'Only QA / testing roles can be added (the title should mention QA, test, SDET or quality).');
+    if (!stats.inserted) throw new HttpError(409, 'This job is already in your list.');
+    res.status(201).json({ id: stats.insertedIds[0] });
   }),
 );
 
@@ -87,7 +146,7 @@ router.post(
 router.get(
   '/saved',
   asyncH(async (req, res) => {
-    res.json(await searchJobs(await getDb(), uid(req), { savedOnly: true, includeDemo: true, pageSize: 100 }));
+    res.json(await searchJobs(await getDb(), uid(req), { savedOnly: true, pageSize: 100 }));
   }),
 );
 

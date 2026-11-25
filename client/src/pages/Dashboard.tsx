@@ -7,7 +7,7 @@ import { APPLICATION_STATUSES } from '../lib/types';
 import { Badge, Button, Card, CardHeader, EmptyState, ErrorBox, ProgressBar, Spinner, StatCard, timeAgo } from '../components/ui';
 
 interface DashboardData {
-  jobs: { live_total: number; new_today: number; demo_total: number };
+  jobs: { live_total: number; new_today: number };
   savedJobs: number;
   notifications: { unread: number; total: number };
   applications: { total: number; byStatus: Record<string, number> };
@@ -46,7 +46,7 @@ export default function Dashboard() {
 
       {data.jobs.live_total === 0 && (
         <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
-          No live jobs collected yet – job pages show clearly-labelled demo data until a source returns results. Check <Link to="/settings" className="font-semibold underline">Settings → Job sources</Link>.
+          No jobs collected yet. Open <Link to="/jobs" className="font-semibold underline">Find Jobs</Link> and click “Fetch latest jobs” to pull live QA roles from company career pages, or check <Link to="/settings" className="font-semibold underline">Settings → Job sources</Link>.
         </div>
       )}
 

@@ -145,7 +145,7 @@ export default function Alerts() {
           {notifs.loading && !notifs.data ? (
             <Spinner />
           ) : notifs.data?.notifications.length === 0 ? (
-            <EmptyState icon={<Bell className="h-6 w-6" />} title="No alerts yet" text="When the daily job collection finds new live jobs that match your preferences, they appear here. Demo data never triggers alerts." />
+            <EmptyState icon={<Bell className="h-6 w-6" />} title="No alerts yet" text="When the daily job collection finds new live jobs that match your preferences, they appear here." />
           ) : (
             <ul className="divide-y divide-slate-100 dark:divide-slate-800" data-testid="notification-list">
               {notifs.data?.notifications.map((n) => (

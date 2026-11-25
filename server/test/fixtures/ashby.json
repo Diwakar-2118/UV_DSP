@@ -1,0 +1,290 @@
+{
+  "jobs": [
+    {
+      "id": "ae34ab7e-5729-44dd-826f-7ebb55b64e9b",
+      "title": "Senior Manager, Quality Engineering",
+      "department": "Engineering",
+      "team": "Engineering",
+      "employmentType": "FullTime",
+      "location": "United States",
+      "shouldDisplayCompensationOnJobPostings": true,
+      "secondaryLocations": [],
+      "publishedAt": "2026-08-04T13:05:59.969+00:00",
+      "isListed": true,
+      "isRemote": true,
+      "workplaceType": "Remote",
+      "address": {
+        "postalAddress": {
+          "addressRegion": "",
+          "addressCountry": "United States",
+          "addressLocality": ""
+        }
+      },
+      "jobUrl": "https://jobs.ashbyhq.com/sardine/ae34ab7e-5729-44dd-826f-7ebb55b64e9b",
+      "applyUrl": "https://jobs.ashbyhq.com/sardine/ae34ab7e-5729-44dd-826f-7ebb55b64e9b/application",
+      "descriptionHtml": "<p style=\"min-height:1.5em\"><strong>Who we are:</strong></p><p style=\"min-height:1.5em\">Sardine is the leading agentic risk platform for fighting financial crime. Our integrated solution unifies data across risk teams to help organizations stop fraud in real time, prevent AI-driven attacks, and automate fraud and AML operations. Sardine’s platform is strengthened by one of the fastest-growing fraud consortiums in the market, spanning more than 6 billion profiled devices, 800 million consumers, and 3 million businesses worldwide. Leading companies including FIS, GoDaddy, Intuit, Edward Jones, ZoomInfo, and Checkout.com rely on Sardine to secure and grow trust in their products.</p><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\"><strong>Our culture:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">We hire talented, self-motivated individuals with extreme ownership and high growth orientation. </p></li><li><p style=\"min-height:1.5em\">We value performance and not hours worked. We believe you shouldn't have to miss your family dinner, your kid's school play, friends get-together, or doctor's appointments for the sake of adhering to an arbitrary work schedule.</p></li><li><p style=\"min-height:1.5em\">We're a remote-first team spread across time zones, so no office to report to - work from wherever helps you do your best work. Just a couple of things to keep in mind: pay is based on where you're located, and you'll need to keep a home base in the c",
+      "descriptionPlain": "Who we are:\n\nSardine is the leading agentic risk platform for fighting financial crime. Our integrated solution unifies data across risk teams to help organizations stop fraud in real time, prevent AI-driven attacks, and automate fraud and AML operations. Sardine’s platform is strengthened by one of the fastest-growing fraud consortiums in the market, spanning more than 6 billion profiled devices, 800 million consumers, and 3 million businesses worldwide. Leading companies including FIS, GoDaddy, Intuit, Edward Jones, ZoomInfo, and Checkout.com rely on Sardine to secure and grow trust in their products.\n\n\n\nOur culture:\n\n - We hire talented, self-motivated individuals with extreme ownership and high growth orientation. \n\n - We value performance and not hours worked. We believe you shouldn't have to miss your family dinner, your kid's school play, friends get-together, or doctor's appointments for the sake of adhering to an arbitrary work schedule.\n\n - We're a remote-first team spread across time zones, so no office to report to - work from wherever helps you do your best work. Just a couple of things to keep in mind: pay is based on where you're located, and you'll need to keep a home base in the country you're hired in. So while we love the \"coffee shop today, mountains tomorrow\" life, this isn't a passport-optional, work-from-anywhere-on-Earth kind of remote - think flexible within your country, not borderless.\n\n\n\nLocation: \n\n - Remote - United States \n\n\n\n\nABOUT THE ROLE\n\nAs",
+      "compensation": {
+        "compensationTierSummary": "$165K – $230K • Offers Equity",
+        "scrapeableCompensationSalarySummary": "$165K - $230K",
+        "compensationTiers": [
+          {
+            "id": "811037e1-4a0d-48f8-86d7-2c4bb259550d",
+            "tierSummary": "$165K – $230K • Offers Equity",
+            "title": null,
+            "additionalInformation": null,
+            "components": [
+              {
+                "id": "ddae4911-1286-4524-9a5f-8f9d57fe1777",
+                "summary": "$165K – $230K",
+                "compensationType": "Salary",
+                "interval": "1 YEAR",
+                "currencyCode": "USD",
+                "minValue": 165000,
+                "maxValue": 230000
+              },
+              {
+                "id": "e6a6912f-8094-4626-a035-e473c526b49e",
+                "summary": "Offers Equity",
+                "compensationType": "EquityPercentage",
+                "interval": "NONE",
+                "currencyCode": null,
+                "minValue": null,
+                "maxValue": null
+              }
+            ]
+          }
+        ],
+        "summaryComponents": [
+          {
+            "compensationType": "Salary",
+            "interval": "1 YEAR",
+            "currencyCode": "USD",
+            "minValue": 165000,
+            "maxValue": 230000
+          },
+          {
+            "compensationType": "EquityPercentage",
+            "interval": "NONE",
+            "currencyCode": null,
+            "minValue": null,
+            "maxValue": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "69de7022-6ef3-4dbd-8cbe-29468ff27ddc",
+      "title": "User Acceptance Testing Analyst",
+      "department": "Product Management",
+      "team": "Product Management",
+      "employmentType": "FullTime",
+      "location": "United States",
+      "shouldDisplayCompensationOnJobPostings": true,
+      "secondaryLocations": [],
+      "publishedAt": "2026-10-01T15:59:58.439+00:00",
+      "isListed": true,
+      "isRemote": true,
+      "workplaceType": "Remote",
+      "address": {
+        "postalAddress": {
+          "addressRegion": "",
+          "addressCountry": "United States",
+          "addressLocality": ""
+        }
+      },
+      "jobUrl": "https://jobs.ashbyhq.com/sardine/69de7022-6ef3-4dbd-8cbe-29468ff27ddc",
+      "applyUrl": "https://jobs.ashbyhq.com/sardine/69de7022-6ef3-4dbd-8cbe-29468ff27ddc/application",
+      "descriptionHtml": "<p style=\"min-height:1.5em\"><strong>Who we are:</strong></p><p style=\"min-height:1.5em\">Sardine is the leading agentic risk platform for fighting financial crime. Our integrated solution unifies data across risk teams to help organizations stop fraud in real time, prevent AI-driven attacks, and automate fraud and AML operations. Sardine’s platform is strengthened by one of the fastest-growing fraud consortiums in the market, spanning more than 6 billion profiled devices, 800 million consumers, and 3 million businesses worldwide. Leading companies including FIS, GoDaddy, Intuit, Edward Jones, ZoomInfo, and Checkout.com rely on Sardine to secure and grow trust in their products.</p><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\"><strong>Our culture:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">We hire talented, self-motivated individuals with extreme ownership and high growth orientation. </p></li><li><p style=\"min-height:1.5em\">We value performance and not hours worked. We believe you shouldn't have to miss your family dinner, your kid's school play, friends get-together, or doctor's appointments for the sake of adhering to an arbitrary work schedule.</p></li><li><p style=\"min-height:1.5em\">We're a remote-first team spread across time zones, so no office to report to - work from wherever helps you do your best work. Just a couple of things to keep in mind: pay is based on where you're located, and you'll need to keep a home base in the c",
+      "descriptionPlain": "Who we are:\n\nSardine is the leading agentic risk platform for fighting financial crime. Our integrated solution unifies data across risk teams to help organizations stop fraud in real time, prevent AI-driven attacks, and automate fraud and AML operations. Sardine’s platform is strengthened by one of the fastest-growing fraud consortiums in the market, spanning more than 6 billion profiled devices, 800 million consumers, and 3 million businesses worldwide. Leading companies including FIS, GoDaddy, Intuit, Edward Jones, ZoomInfo, and Checkout.com rely on Sardine to secure and grow trust in their products.\n\n\n\nOur culture:\n\n - We hire talented, self-motivated individuals with extreme ownership and high growth orientation. \n\n - We value performance and not hours worked. We believe you shouldn't have to miss your family dinner, your kid's school play, friends get-together, or doctor's appointments for the sake of adhering to an arbitrary work schedule.\n\n - We're a remote-first team spread across time zones, so no office to report to - work from wherever helps you do your best work. Just a couple of things to keep in mind: pay is based on where you're located, and you'll need to keep a home base in the country you're hired in. So while we love the \"coffee shop today, mountains tomorrow\" life, this isn't a passport-optional, work-from-anywhere-on-Earth kind of remote - think flexible within your country, not borderless.\n\n\n\nLocation: \n\n - Remote - United States\n\nAbout the role:\n\nWe ar",
+      "compensation": {
+        "compensationTierSummary": "$110K – $140K • Offers Equity",
+        "scrapeableCompensationSalarySummary": "$110K - $140K",
+        "compensationTiers": [
+          {
+            "id": "37022df7-24fc-42a8-aee8-bed038e2bb1b",
+            "tierSummary": "$110K – $140K • Offers Equity",
+            "title": "United States",
+            "additionalInformation": null,
+            "components": [
+              {
+                "id": "2c2a44cd-42ac-4184-8154-c1b775fc409e",
+                "summary": "$110K – $140K",
+                "compensationType": "Salary",
+                "interval": "1 YEAR",
+                "currencyCode": "USD",
+                "minValue": 110000,
+                "maxValue": 140000
+              },
+              {
+                "id": "9ee426a1-5297-4854-b847-476a6e4fce58",
+                "summary": "Offers Equity",
+                "compensationType": "EquityPercentage",
+                "interval": "NONE",
+                "currencyCode": null,
+                "minValue": null,
+                "maxValue": null
+              }
+            ]
+          }
+        ],
+        "summaryComponents": [
+          {
+            "compensationType": "Salary",
+            "interval": "1 YEAR",
+            "currencyCode": "USD",
+            "minValue": 110000,
+            "maxValue": 140000
+          },
+          {
+            "compensationType": "EquityPercentage",
+            "interval": "NONE",
+            "currencyCode": null,
+            "minValue": null,
+            "maxValue": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "f7c8747e-c21b-4a22-81ba-a4b46bd861dd",
+      "title": "Strategic Account Executive",
+      "department": "Sales",
+      "team": "Sales",
+      "employmentType": "FullTime",
+      "location": "North America",
+      "shouldDisplayCompensationOnJobPostings": true,
+      "secondaryLocations": [
+        {
+          "location": "United States",
+          "address": {
+            "postalAddress": {
+              "addressRegion": "",
+              "addressCountry": "United States",
+              "addressLocality": ""
+            }
+          }
+        },
+        {
+          "location": "Canada",
+          "address": {
+            "postalAddress": {
+              "addressCountry": "Canada"
+            }
+          }
+        }
+      ],
+      "publishedAt": "2026-07-10T23:23:02.518+00:00",
+      "isListed": true,
+      "isRemote": true,
+      "workplaceType": "Remote",
+      "address": {
+        "postalAddress": {
+          "addressCountry": "United States"
+        }
+      },
+      "jobUrl": "https://jobs.ashbyhq.com/sardine/f7c8747e-c21b-4a22-81ba-a4b46bd861dd",
+      "applyUrl": "https://jobs.ashbyhq.com/sardine/f7c8747e-c21b-4a22-81ba-a4b46bd861dd/application",
+      "descriptionHtml": "<p style=\"min-height:1.5em\"><strong>Who we are:</strong></p><p style=\"min-height:1.5em\">Sardine is the leading agentic risk platform for fighting financial crime. Our integrated solution unifies data across risk teams to help organizations stop fraud in real time, prevent AI-driven attacks, and automate fraud and AML operations. Sardine’s platform is strengthened by one of the fastest-growing fraud consortiums in the market, spanning more than 6 billion profiled devices, 800 million consumers, and 3 million businesses worldwide. Leading companies including FIS, GoDaddy, Intuit, Edward Jones, ZoomInfo, and Checkout.com rely on Sardine to secure and grow trust in their products.</p><p style=\"min-height:1.5em\"></p><p style=\"min-height:1.5em\"><strong>Our culture:</strong></p><ul style=\"min-height:1.5em\"><li><p style=\"min-height:1.5em\">We hire talented, self-motivated individuals with extreme ownership and high growth orientation. </p></li><li><p style=\"min-height:1.5em\">We value performance and not hours worked. We believe you shouldn't have to miss your family dinner, your kid's school play, friends get-together, or doctor's appointments for the sake of adhering to an arbitrary work schedule.</p></li><li><p style=\"min-height:1.5em\">We're a remote-first team spread across time zones, so no office to report to - work from wherever helps you do your best work. Just a couple of things to keep in mind: pay is based on where you're located, and you'll need to keep a home base in the c",
+      "descriptionPlain": "Who we are:\n\nSardine is the leading agentic risk platform for fighting financial crime. Our integrated solution unifies data across risk teams to help organizations stop fraud in real time, prevent AI-driven attacks, and automate fraud and AML operations. Sardine’s platform is strengthened by one of the fastest-growing fraud consortiums in the market, spanning more than 6 billion profiled devices, 800 million consumers, and 3 million businesses worldwide. Leading companies including FIS, GoDaddy, Intuit, Edward Jones, ZoomInfo, and Checkout.com rely on Sardine to secure and grow trust in their products.\n\n\n\nOur culture:\n\n - We hire talented, self-motivated individuals with extreme ownership and high growth orientation. \n\n - We value performance and not hours worked. We believe you shouldn't have to miss your family dinner, your kid's school play, friends get-together, or doctor's appointments for the sake of adhering to an arbitrary work schedule.\n\n - We're a remote-first team spread across time zones, so no office to report to - work from wherever helps you do your best work. Just a couple of things to keep in mind: pay is based on where you're located, and you'll need to keep a home base in the country you're hired in. So while we love the \"coffee shop today, mountains tomorrow\" life, this isn't a passport-optional, work-from-anywhere-on-Earth kind of remote - think flexible within your country, not borderless.\n\n\n\nLocation:\n\n - Remote - United States or Canada \n\n\n\nAbout the ",
+      "compensation": {
+        "compensationTierSummary": "$230K – $320K • Offers Equity • Offers Commission • Multiple Ranges",
+        "scrapeableCompensationSalarySummary": "$230K - $320K",
+        "compensationTiers": [
+          {
+            "id": "9c46e0f7-af0b-4fde-bfc5-379302a206d8",
+            "tierSummary": "United States OTE $230K – $320K • Offers Equity • Offers Commission",
+            "title": "United States",
+            "additionalInformation": null,
+            "components": [
+              {
+                "id": "f8adf60f-4343-42f8-a2df-fa7fbf982ce9",
+                "summary": "Offers Equity",
+                "compensationType": "EquityPercentage",
+                "interval": "NONE",
+                "currencyCode": null,
+                "minValue": null,
+                "maxValue": null
+              },
+              {
+                "id": "781452c4-6a8c-47cb-a78c-bc9c449f0c54",
+                "summary": "Offers Commission",
+                "compensationType": "Commission",
+                "interval": "1 YEAR",
+                "currencyCode": "USD",
+                "minValue": null,
+                "maxValue": null
+              },
+              {
+                "id": "6b70b9c9-979d-45a3-9ab2-79f70a541043",
+                "summary": "United States OTE $230K – $320K",
+                "compensationType": "Salary",
+                "interval": "1 YEAR",
+                "currencyCode": "USD",
+                "minValue": 230000,
+                "maxValue": 320000
+              }
+            ]
+          },
+          {
+            "id": "f3401def-5848-4ce7-b85a-9549ac1faaef",
+            "tierSummary": "Canada OTE CA$260K – CA$390K • Offers Equity • Offers Commission",
+            "title": "Canada",
+            "additionalInformation": null,
+            "components": [
+              {
+                "id": "05f55a83-89ea-495c-9301-b6a4dcbb72f6",
+                "summary": "Offers Equity",
+                "compensationType": "EquityPercentage",
+                "interval": "NONE",
+                "currencyCode": null,
+                "minValue": null,
+                "maxValue": null
+              },
+              {
+                "id": "0db9ba0c-2979-48f9-919d-494d9125301b",
+                "summary": "Offers Commission",
+                "compensationType": "Commission",
+                "interval": "1 YEAR",
+                "currencyCode": "CAD",
+                "minValue": null,
+                "maxValue": null
+              },
+              {
+                "id": "19598fe1-d8f6-4d3e-9525-26914beecb49",
+                "summary": "Canada OTE CA$260K – CA$390K",
+                "compensationType": "Salary",
+                "interval": "1 YEAR",
+                "currencyCode": "CAD",
+                "minValue": 260000,
+                "maxValue": 390000
+              }
+            ]
+          }
+        ],
+        "summaryComponents": [
+          {
+            "compensationType": "EquityPercentage",
+            "minValue": null,
+            "maxValue": null,
+            "interval": "1 YEAR"
+          },
+          {
+            "compensationType": "Commission",
+            "minValue": null,
+            "maxValue": null,
+            "interval": "1 YEAR"
+          },
+          {
+            "compensationType": "Salary",
+            "interval": "1 YEAR",
+            "currencyCode": "USD",
+            "minValue": 230000,
+            "maxValue": 320000
+          }
+        ]
+      }
+    }
+  ],
+  "apiVersion": "1"
+}

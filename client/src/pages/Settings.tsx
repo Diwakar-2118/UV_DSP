@@ -84,7 +84,7 @@ export default function SettingsPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-semibold">{s.name}</p>
-                  <Badge tone={s.kind === 'demo' ? 'amber' : s.kind === 'search_link' ? 'slate' : 'navy'}>{s.kind === 'search_link' ? 'Deep links only' : s.kind === 'career_page' ? 'Career pages API' : s.kind === 'demo' ? 'Demo' : 'API'}</Badge>
+                  <Badge tone={s.kind === 'search_link' ? 'slate' : 'navy'}>{s.kind === 'search_link' ? 'Deep links only' : s.kind === 'career_page' ? 'Career pages API' : s.kind === 'user' ? 'Added by you' : 'API'}</Badge>
                   {s.requires_credentials && <Badge>needs API key</Badge>}
                   {s.last_status && <Badge tone={s.last_status === 'ok' ? 'green' : s.last_status === 'error' ? 'red' : 'slate'}>{s.last_status}</Badge>}
                 </div>

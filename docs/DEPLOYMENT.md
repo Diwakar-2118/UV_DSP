@@ -82,13 +82,12 @@ Every integration is optional. The UI reports each one's real status under **Set
 ### Job sources
 | Variable | Source |
 |---|---|
-| `GREENHOUSE_BOARDS` | Comma-separated Greenhouse board tokens (the part after `boards.greenhouse.io/`). Default: `razorpaysoftwareprivatelimited,groww,hackerrank,netskope,highradius,rubrik,zscaler,okta,databricks` |
-| `SMARTRECRUITERS_COMPANIES` | SmartRecruiters company ids (the part after `jobs.smartrecruiters.com/`). Default: `BoschGroup,Experian` |
-| `LEVER_COMPANIES` | Lever company slugs (the part after `jobs.lever.co/`) |
+| `GREENHOUSE_BOARDS`, `LEVER_COMPANIES`, `ASHBY_ORGS`, `SMARTRECRUITERS_COMPANIES` | Optional comma-separated lists that **replace** the company catalog for that ATS (`server/src/sources/catalog.ts`). |
+| `WORKDAY_SITES` | Optional `tenant:N:site` list replacing the Workday catalog, e.g. `salesforce:12:External_Career_Site`. |
+| `JOOBLE_API_KEY` | Optional free Jooble API key. |
 | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | Free key from https://developer.adzuna.com/ (India: Bengaluru & Hyderabad) |
 | `JSEARCH_API_KEY` | RapidAPI key for JSearch (LinkedIn / Indeed / Naukri postings via Google for Jobs) |
 | `ENABLE_LIVE_SOURCES` | `false` disables all network sources (tests/offline) |
-| `SEED_DEMO_JOBS` | `false` hides demo listings entirely |
 
 Sources can be toggled in **Settings → Job sources**. Set `ADMIN_EMAILS` to restrict this, and the manual “Fetch latest jobs” button, to administrators.
 

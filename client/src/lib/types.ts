@@ -63,7 +63,6 @@ export interface Job {
   description: string;
   posted_at: string;
   apply_url: string | null;
-  is_demo: boolean;
   saved: boolean;
   match: MatchResult;
 }
@@ -72,7 +71,6 @@ export interface JobSearchResponse {
   total: number;
   page: number;
   pageSize: number;
-  includeDemo: boolean;
   liveAvailable: boolean;
   jobs: Job[];
 }

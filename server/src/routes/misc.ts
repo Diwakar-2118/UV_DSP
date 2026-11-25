@@ -135,8 +135,7 @@ dashboardRouter.get(
     const id = uid(req);
     const [jobs] = await db.query(
       `SELECT count(*) FILTER (WHERE NOT is_demo)::int AS live_total,
-              count(*) FILTER (WHERE NOT is_demo AND first_seen_at > now() - interval '24 hours')::int AS new_today,
-              count(*) FILTER (WHERE is_demo)::int AS demo_total
+              count(*) FILTER (WHERE NOT is_demo AND first_seen_at > now() - interval '24 hours')::int AS new_today
          FROM jobs WHERE is_active`,
     );
     const [saved] = await db.query<{ n: number }>('SELECT count(*)::int AS n FROM saved_jobs WHERE user_id=$1', [id]);

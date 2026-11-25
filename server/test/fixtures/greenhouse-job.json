@@ -1,0 +1,68 @@
+{
+  "absolute_url": "https://www.highradius.com/about/careers-list/?gh_jid=7611164003",
+  "data_compliance": [
+    {
+      "type": "gdpr",
+      "requires_consent": true,
+      "requires_processing_consent": true,
+      "requires_retention_consent": true,
+      "retention_period": 730,
+      "demographic_data_consent_applies": false
+    }
+  ],
+  "internal_job_id": 5710464003,
+  "location": {
+    "name": "Hyderabad, Telangana, India"
+  },
+  "metadata": [
+    {
+      "id": 13056714003,
+      "name": "Sub Department",
+      "value": "Product CFOTech AP & Payments",
+      "value_type": "single_select"
+    },
+    {
+      "id": 5350459003,
+      "name": "Remote Position",
+      "value": false,
+      "value_type": "yes_no"
+    },
+    {
+      "id": 15257451003,
+      "name": "Experience Range",
+      "value": [
+        "5.1 to 7.0 Years"
+      ],
+      "value_type": "multi_select"
+    }
+  ],
+  "id": 7611164003,
+  "updated_at": "2026-06-23T08:16:55-04:00",
+  "requisition_id": "20260205",
+  "title": "Agent Developer Test III",
+  "company_name": "HighRadius",
+  "first_published": "2026-06-08T05:28:06-04:00",
+  "language": "en",
+  "application_deadline": null,
+  "content": "&lt;p&gt;&lt;strong&gt;About Us:&lt;/strong&gt;&lt;/p&gt;\n&lt;div&gt;HighRadius provides a single Agentic AI platform for the Office of the CFO. It integrates 180+ agents that orchestrate end-to-end processes across Order-to-Cash, Close &amp;amp; Reconciliation, Consolidation &amp;amp; Reporting, Accounts Payable, B2B Payments, and Treasury. HighRadius guarantees operational KPI improvements by mapping them to specific agents on the platform. With a 3-6 month go-live period, HighRadius drives value creation at 1300+ enterprises such as 3M, Unilever, Bristol-Myers Squibb Company, Red Bull, Lufthansa, and more. HighRadius has been consistently recognized as a market leader by Gartner, IDC, and Forrester.&lt;/div&gt;\n&lt;p&gt;&lt;strong&gt;Job Summary:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;We are looking for a highly skilled Agent Developer Test-III to design and implement robust test automation frameworks, ensure product scalability and quality, and drive quality engineering best practices across the organization. You will work closely with engineering, product, and DevOps teams to ensure delivery of high-quality software in a fast-paced Agile environment.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Key Responsibilities&lt;/strong&gt;&lt;br&gt;&lt;br&gt;Automation &amp;amp; Test Strategy&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;\n&lt;p&gt;Design, develop, and maintain scalable test automation frameworks (UI, API, and backend).&lt;/p&gt;\n&lt;/li&gt;\n&lt;li&gt;\n&lt;p&gt;Drive test strategy and architecture decisions for complex systems.&lt;/p&gt;\n&lt;/li&gt;\n&lt;li&gt;\n&lt;p&gt;Build reusable testing utilities and tools.&lt;/p&gt;\n&lt;/li&gt;\n&lt;li&gt;\n&lt;p&gt;Ensure high automation coverage across releases.&lt;/p&gt;\n&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;Test Development &amp;amp; Execution&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;\n&lt;p&gt;Develop automated test scripts using tools like Selenium, Cypress, Playwright, etc.&lt;/p&gt;\n&lt;/li&gt;\n&lt;li&gt;\n&lt;p&gt;Perform API testing using tools such as RestAssured, Postman, or similar.&lt;/p&gt;\n&lt;/li&gt;\n&lt;li&gt;\n&lt;p&gt;Implement performance and load testing (e.g., JMeter, Gatling).&lt;/p&gt;\n&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;CI/CD &amp;amp; DevOps Integration&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;\n&lt;p&gt;Integrate automated tests into CI/CD pipelines (Jenkins, GitHub Actions, Azure DevOps).&lt;/p&gt;\n&lt;/li&gt;\n&lt;li&gt;\n&lt;p&gt;Ensure continuous testing and quality validation.&lt;/p&gt;\n&lt;/li&gt;\n&lt;li&gt;\n&lt;p&gt;Collaborate with DevOps to improve build and deployment pipelines.&lt;/p&gt;\n&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;Quality Engineering Practices&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;\n&lt;p&gt;Define and enforce quality standards, test processes, and best practices.&lt;/p&gt;\n&lt;/li&gt;\n&lt;li&gt;\n&lt;p&gt;Conduct code reviews for test automation.&lt;/p&gt;\n&lt;/li&gt;\n&lt;li&gt;\n&lt;p&gt;Mentor junior SDETs and QA engineers.&lt;/p&gt;\n&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;Cross-functional Collaboration&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&g",
+  "departments": [
+    {
+      "id": 4033874003,
+      "name": "Product & Engineering",
+      "child_ids": [],
+      "parent_id": null
+    }
+  ],
+  "offices": [
+    {
+      "id": 4023087003,
+      "name": "Hyderabad",
+      "location": "Hyderabad, Telangana, India",
+      "child_ids": [],
+      "parent_id": 4023086003
+    }
+  ],
+  "ai_disclaimer": null,
+  "include_ai_disclaimer": null,
+  "ai_opt_out_request_url": null
+}

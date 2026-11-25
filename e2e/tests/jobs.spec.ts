@@ -2,48 +2,45 @@ import { expect, test } from '@playwright/test';
 import { registerViaApi, seedLiveJobs } from './helpers';
 
 test.describe('Job discovery', () => {
-  test('job cards show every required field and demo data is clearly labelled', async ({ page }) => {
+  test('job cards show every required field and link to the original posting', async ({ page }) => {
     await registerViaApi(page);
+    const tag = `live${Date.now()}`;
+    await seedLiveJobs(page.request, tag);
     await page.goto('/jobs');
-    await page.getByLabel('Data source').selectOption('true');
-    const card = page.getByTestId('job-card').filter({ has: page.getByTestId('demo-badge') }).first();
-    await expect(card).toBeVisible();
-    await expect(card.getByTestId('demo-badge')).toHaveText('DEMO DATA');
-    await expect(card).toContainText('(Demo)');
+    await page.getByTestId('job-search').fill(tag);
+    const card = page.getByTestId('job-card').filter({ hasText: 'E2E Payments' }).first();
+    await expect(card.getByText('Live listing')).toBeVisible();
     await expect(card).toContainText(/yrs|Not specified/);
     await expect(card).toContainText(/Source:/);
     await expect(card.getByLabel(/% match/)).toBeVisible();
     await expect(card.getByTestId('save-job')).toBeVisible();
-    // Demo jobs have no fake application link – they offer a real search instead.
-    await expect(card.getByTestId('apply-now')).toHaveCount(0);
-    await expect(card.getByRole('link', { name: /Find similar on LinkedIn/ })).toHaveAttribute('href', /linkedin\.com\/jobs\/search/);
-  });
-
-  test('live jobs link to the original posting', async ({ page }) => {
-    await registerViaApi(page);
-    await seedLiveJobs(page.request, `live${Date.now()}`);
-    await page.goto('/jobs');
-    const card = page.getByTestId('job-card').filter({ hasText: 'E2E Payments' }).first();
-    await expect(card.getByText('Live listing')).toBeVisible();
     await expect(card.getByTestId('apply-now')).toHaveAttribute('href', /^https:\/\/jobs\.e2e\.example\//);
+    await expect(page.getByTestId('demo-badge')).toHaveCount(0);
   });
 
   test('search, filters and sorting narrow the results', async ({ page }) => {
     await registerViaApi(page);
+    const tag = `filt${Date.now()}`;
+    await seedLiveJobs(page.request, tag, [
+      { title: `Performance Test Engineer ${tag}`, location: 'Bengaluru, India', description: 'Load testing with JMeter and Gatling. 3-5 years.' },
+      { title: `QA Engineer ${tag}`, location: 'Hyderabad, Telangana, India' },
+      { title: `API Test Engineer ${tag}`, location: 'Hyderabad, Telangana, India' },
+      { title: `SDET ${tag}`, location: 'Remote (India)' },
+    ]);
     await page.goto('/jobs');
-    await page.getByLabel('Data source').selectOption('true');
     await expect(page.getByTestId('results-count')).toBeVisible();
 
     await page.getByTestId('job-search').fill('JMeter');
     await expect(page.getByTestId('job-title').first()).toContainText(/Performance/i);
 
-    await page.getByTestId('job-search').fill('');
+    await page.getByTestId('job-search').fill(tag);
     await page.getByRole('group', { name: 'Locations' }).getByRole('button', { name: 'Bengaluru' }).click();
     await page.getByRole('group', { name: 'Locations' }).getByRole('button', { name: 'Remote' }).click();
     // Only Hyderabad selected now
-    await expect(page.getByTestId('job-card').first()).toContainText('Hyderabad');
+    await expect(page.getByTestId('job-card')).toHaveCount(2);
     for (const loc of await page.getByTestId('job-card').allInnerTexts()) expect(loc).toContain('Hyderabad');
 
+    await page.getByTestId('job-search').fill('');
     await page.getByLabel('Minimum match').selectOption('90');
     await page.getByTestId('sort-select').selectOption('match');
     const scores = () => page.getByTestId('job-card').getByLabel(/% match/).evaluateAll((els) => els.map((e) => parseInt(e.getAttribute('aria-label')!)));
@@ -66,9 +63,12 @@ test.describe('Job discovery', () => {
 
   test('save job, view saved, and track from a job card', async ({ page }) => {
     await registerViaApi(page);
+    const tag = `save${Date.now()}`;
+    // A job without an application link shows the Track button directly.
+    await seedLiveJobs(page.request, tag, [{ title: `QA Analyst ${tag}`, applyUrl: null }]);
     await page.goto('/jobs');
-    await page.getByLabel('Data source').selectOption('true');
-    const card = page.getByTestId('job-card').filter({ has: page.getByTestId('demo-badge') }).first();
+    await page.getByTestId('job-search').fill(tag);
+    const card = page.getByTestId('job-card').filter({ hasText: tag }).first();
     const title = await card.getByTestId('job-title').innerText();
     await card.getByTestId('save-job').click();
     await expect(card.getByTestId('save-job')).toHaveText(/Saved/);
@@ -88,7 +88,7 @@ test.describe('Job discovery', () => {
     await registerViaApi(page);
     await page.goto('/jobs');
     for (const [name, host] of [['LinkedIn', 'linkedin.com'], ['Naukri', 'naukri.com'], ['Indeed', 'indeed.com'], ['Wellfound', 'wellfound.com'], ['Foundit', 'foundit.in']]) {
-      await expect(page.getByRole('link', { name })).toHaveAttribute('href', new RegExp(host.replace('.', '\\.')));
+      await expect(page.getByRole('link', { name, exact: true })).toHaveAttribute('href', new RegExp(host.replace('.', '\\.')));
     }
   });
 });

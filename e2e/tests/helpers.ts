@@ -24,14 +24,18 @@ export async function registerViaApi(page: Page, name = 'API Tester') {
   return email;
 }
 
-export async function seedLiveJobs(request: APIRequestContext, tag: string, extra: Partial<{ title: string; location: string; daysAgo: number }>[] = [{}]) {
+export async function seedLiveJobs(
+  request: APIRequestContext,
+  tag: string,
+  extra: Partial<{ title: string; location: string; daysAgo: number; description: string; company: string; applyUrl: string | null }>[] = [{}],
+) {
   const jobs = extra.map((e, i) => ({
     externalId: `${tag}-${i}`,
     title: e.title ?? `Fintech QA Engineer ${tag}-${i}`,
-    company: `E2E Payments ${tag}`,
+    company: e.company ?? `E2E Payments ${tag}`,
     location: e.location ?? 'Bengaluru, India',
-    description: 'Payment gateway testing with Postman, SQL, API testing, settlement, reconciliation and UPI. 3-5 years of experience.',
-    applyUrl: `https://jobs.e2e.example/${tag}/${i}`,
+    description: e.description ?? 'Payment gateway testing with Postman, SQL, API testing, settlement, reconciliation and UPI. 3-5 years of experience.',
+    applyUrl: e.applyUrl === undefined ? `https://jobs.e2e.example/${tag}/${i}` : e.applyUrl,
     daysAgo: e.daysAgo ?? 0,
   }));
   const res = await request.post('/api/test/ingest', { data: { sourceId: 'greenhouse', jobs } });
